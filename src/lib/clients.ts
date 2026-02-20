@@ -61,28 +61,49 @@ const clients: Record<string, ClientConfig> = {
     ],
     primaryColor: "#dc582a",
   },
-"final-test": {
-  assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-  businessName: "testing",
-  greeting: "Hello! testing!",
-  quickReplies: [
+  "xyz-2": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "XYZ-2",
+    greeting: "HI TESTING",
+    quickReplies: [
+      "TEST 1",
+      "TEST 2",
+    ],
+    primaryColor: "#9a532d",
+  },
+  "test-3": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "testing 3",
+    greeting: "Hello! this is a test",
+    quickReplies: [
+      "test1",
+      "test2",
+      "test3",
+    ],
+    primaryColor: "#dc582a",
+  },
+  "final-test": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "testing",
+    greeting: "Hello! testing!",
+    quickReplies: [
       "1",
       "2",
       "3",
     ],
-  primaryColor: "#00f03c",
-  avatarUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
-  description: "test ya",
-  messagePlaceholder: "hola",
-  footer: "and rew",
-  fontFamily: "Poppins",
-  themeMode: "dark",
-  headerStyle: "gradient",
-  buttonImageUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
-  proactiveMessage: "hola",
-  historyReset: "24h",
-},
-  
+    primaryColor: "#00f03c",
+    avatarUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
+    description: "test ya",
+    messagePlaceholder: "hola",
+    footer: "and rew",
+    fontFamily: "Poppins",
+    themeMode: "dark",
+    headerStyle: "gradient",
+    buttonImageUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
+    proactiveMessage: "hola",
+    historyReset: "24h",
+  },
+};
 
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
