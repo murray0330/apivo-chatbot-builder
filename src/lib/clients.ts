@@ -4,7 +4,7 @@ export interface ClientConfig {
   businessName: XYZ;
   greeting: Hello! Welcome to XYZ. How can I help you today?;
   quickReplies: string[];
-  primaryColor: #7bafd4;
+  primaryColor: #dc582a;
 }
 
 export interface PublicClientConfig {
