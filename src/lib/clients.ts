@@ -1,17 +1,17 @@
 export interface ClientConfig {
   /** Vapi assistant ID — server-side only, never exposed to clients */
-  assistantId: string;
-  businessName: string;
-  greeting: string;
+  assistantId: f5381cfd-af11-44d5-9bf3-5d1d87c7b121;
+  businessName: XYZ;
+  greeting: Hello! Welcome to XYZ. How can I help you today?;
   quickReplies: string[];
-  primaryColor: string;
+  primaryColor: #7bafd4;
 }
 
 export interface PublicClientConfig {
-  businessName: string;
-  greeting: string;
+  businessName: XYZ;
+  greeting: Hello! Welcome to XYZ. How can I help you today?;
   quickReplies: string[];
-  primaryColor: string;
+  primaryColor: #7bafd4;
 }
 
 /**
