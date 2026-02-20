@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Vapi Embed Platform",
-  description: "Centralized Vapi chatbot embed platform. One script tag per client site.",
+  title: "Bot Builder",
+  description: "Configure and deploy your AI chatbot",
 };
 
 export default function RootLayout({
