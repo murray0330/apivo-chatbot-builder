@@ -38,6 +38,17 @@ const clients: Record<string, ClientConfig> = {
   },
 };
 
+"xyz": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "XYZ",
+    greeting: "HI TESTING",
+    quickReplies: [
+      "TEST 1",
+      "TEST 2",
+    ],
+    primaryColor: "#9a532d",
+  },
+
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
 }
