@@ -799,21 +799,64 @@ function PublishModal({
     .split(",")
     .map((r) => r.trim())
     .filter(Boolean);
-  const repliesTs =
-    quickRepliesArr.length === 0
-      ? "[]"
-      : `[\n      ${quickRepliesArr.map((r) => `"${r}"`).join(",\n      ")},\n    ]`;
 
-  const embedSnippet = `<script\n  src="${config.deployedUrl}/api/widget.js"\n  data-widget-id="${config.widgetId}"\n  defer\n></script>`;
+  // Serialize a value as a TypeScript literal
+  function tsVal(v: string | boolean | string[]): string {
+    if (Array.isArray(v)) {
+      if (v.length === 0) return "[]";
+      return `[\n      ${v.map((r) => `"${r}"`).join(",\n      ")},\n    ]`;
+    }
+    if (typeof v === "boolean") return String(v);
+    return `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  }
+
+  // Ordered list of [key, value] — required fields always present,
+  // optional fields only included when they differ from defaults.
+  type Field = [string, string | boolean | string[]];
+  const fields: Field[] = [
+    ["assistantId",  config.assistantId],
+    ["businessName", config.displayName],
+    ["greeting",     config.greeting],
+    ["quickReplies", quickRepliesArr],
+    ["primaryColor", config.primaryColor],
+  ];
+
+  // Extended identity
+  if (config.avatarUrl)        fields.push(["avatarUrl",          config.avatarUrl]);
+  if (config.description)      fields.push(["description",        config.description]);
+  if (config.messagePlaceholder && config.messagePlaceholder !== "Type your message...")
+                               fields.push(["messagePlaceholder", config.messagePlaceholder]);
+  if (config.footer)           fields.push(["footer",             config.footer]);
+
+  // Appearance — only non-defaults
+  if (config.fontFamily !== "Inter")       fields.push(["fontFamily",   config.fontFamily]);
+  if (config.themeMode  !== "light")       fields.push(["themeMode",    config.themeMode]);
+  if (config.headerStyle !== "solid")      fields.push(["headerStyle",  config.headerStyle]);
+  if (config.cornerRadius !== "round")     fields.push(["cornerRadius", config.cornerRadius]);
+  if (config.customCss)                    fields.push(["customCss",    config.customCss]);
+
+  // Deploy — only non-defaults
+  if (config.chatInterface !== "floating-widget") fields.push(["chatInterface",      config.chatInterface]);
+  if (config.chatLauncher  !== "bubble")          fields.push(["chatLauncher",       config.chatLauncher]);
+  if (config.useAvatarForButton)                  fields.push(["useAvatarForButton", config.useAvatarForButton]);
+  if (config.buttonImageUrl)                      fields.push(["buttonImageUrl",     config.buttonImageUrl]);
+  if (config.proactiveMessage)                    fields.push(["proactiveMessage",   config.proactiveMessage]);
+
+  // Features — only non-defaults (defaults are all false / "never")
+  if (config.messageFeedback)               fields.push(["messageFeedback",    config.messageFeedback]);
+  if (config.allowFileUpload)               fields.push(["allowFileUpload",    config.allowFileUpload]);
+  if (config.notificationSound)             fields.push(["notificationSound",  config.notificationSound]);
+  if (!config.conversationHistory)          fields.push(["conversationHistory",config.conversationHistory]);
+  if (config.historyReset !== "never")      fields.push(["historyReset",       config.historyReset]);
+
+  const embedSnippet =
+    `<script\n  src="${config.deployedUrl}/api/widget.js"\n` +
+    `  data-widget-id="${config.widgetId}"\n  defer\n></script>`;
 
   const clientsEntry =
     `"${config.widgetId}": {\n` +
-    `  assistantId: "${config.assistantId}",\n` +
-    `  businessName: "${config.displayName}",\n` +
-    `  greeting: "${config.greeting}",\n` +
-    `  quickReplies: ${repliesTs},\n` +
-    `  primaryColor: "${config.primaryColor}",\n` +
-    `},`;
+    fields.map(([k, v]) => `  ${k}: ${tsVal(v)},`).join("\n") +
+    "\n},";
 
   return (
     <div

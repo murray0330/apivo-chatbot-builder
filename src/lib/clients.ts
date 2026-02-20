@@ -1,18 +1,43 @@
 export interface ClientConfig {
   /** Vapi assistant ID — server-side only, never exposed to clients */
   assistantId: string;
+
+  // ── Core identity ──────────────────────────────────────────────────────────
   businessName: string;
   greeting: string;
   quickReplies: string[];
   primaryColor: string;
+
+  // ── Extended identity ──────────────────────────────────────────────────────
+  avatarUrl?: string;
+  description?: string;
+  messagePlaceholder?: string;
+  footer?: string;
+
+  // ── Appearance ─────────────────────────────────────────────────────────────
+  fontFamily?: string;
+  themeMode?: "light" | "dark";
+  headerStyle?: string;
+  cornerRadius?: "sharp" | "round";
+  customCss?: string;
+
+  // ── Deploy ─────────────────────────────────────────────────────────────────
+  chatInterface?: string;
+  chatLauncher?: string;
+  useAvatarForButton?: boolean;
+  buttonImageUrl?: string;
+  proactiveMessage?: string;
+
+  // ── Features ───────────────────────────────────────────────────────────────
+  messageFeedback?: boolean;
+  allowFileUpload?: boolean;
+  notificationSound?: boolean;
+  conversationHistory?: boolean;
+  historyReset?: string;
 }
 
-export interface PublicClientConfig {
-  businessName: string;
-  greeting: string;
-  quickReplies: string[];
-  primaryColor: string;
-}
+/** Everything except the private assistantId — safe to return to the browser */
+export type PublicClientConfig = Omit<ClientConfig, "assistantId">;
 
 /**
  * Server-side registry of all embedded chat clients.
@@ -66,6 +91,7 @@ export function getClient(widgetId: string): ClientConfig | null {
 export function getPublicConfig(widgetId: string): PublicClientConfig | null {
   const client = getClient(widgetId);
   if (!client) return null;
-  const { businessName, greeting, quickReplies, primaryColor } = client;
-  return { businessName, greeting, quickReplies, primaryColor };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { assistantId: _private, ...rest } = client;
+  return rest;
 }
