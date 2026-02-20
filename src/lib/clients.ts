@@ -24,17 +24,17 @@ export interface PublicClientConfig {
  *   3. Give the client their one-line embed snippet.
  */
 const clients: Record<string, ClientConfig> = {
-  "abc-dental": {
-    assistantId: "vapi-assistant-id-placeholder",
+  "xyz": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
     businessName: "ABC Dental",
-    greeting: "Hello! Welcome to ABC Dental. How can I help you today?",
+    greeting: "Hello! Welcome to XYZ. How can I help you today?",
     quickReplies: [
       "Book an appointment",
       "Office hours",
       "Insurance accepted",
       "Contact us",
     ],
-    primaryColor: "#2563eb",
+    primaryColor: "#7bafd4",
   },
 };
 
