@@ -26,7 +26,7 @@ export interface PublicClientConfig {
 const clients: Record<string, ClientConfig> = {
   "xyz": {
     assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-    businessName: "ABC Dental",
+    businessName: "XYZ",
     greeting: "Hello! Welcome to XYZ. How can I help you today?",
     quickReplies: [
       "Book an appointment",
@@ -34,7 +34,7 @@ const clients: Record<string, ClientConfig> = {
       "Insurance accepted",
       "Contact us",
     ],
-    primaryColor: "#7bafd4",
+    primaryColor: "#dc582a",
   },
 };
 
