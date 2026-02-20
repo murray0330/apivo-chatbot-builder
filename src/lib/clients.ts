@@ -38,9 +38,9 @@ const clients: Record<string, ClientConfig> = {
   },
 };
 
-"xyz": {
+"xyz-2": {
     assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-    businessName: "XYZ",
+    businessName: "XYZ-2",
     greeting: "HI TESTING",
     quickReplies: [
       "TEST 1",
