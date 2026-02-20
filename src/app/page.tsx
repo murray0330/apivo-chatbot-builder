@@ -1,4 +1,5 @@
 import type React from "react";
+import ClientGenerator from "./ClientGenerator";
 
 export default function HomePage() {
   return (
@@ -11,6 +12,15 @@ export default function HomePage() {
         project; give each client a single{" "}
         <code style={inlineCode}>&lt;script&gt;</code> tag.
       </p>
+
+      <Section title="Add a new client">
+        <p style={{ color: "#475569", marginBottom: 16, lineHeight: 1.6 }}>
+          Fill in the details below. You&apos;ll get a ready-to-paste embed
+          snippet for the client&apos;s site, and the config block to add to{" "}
+          <code style={inlineCode}>clients.ts</code> in GitHub.
+        </p>
+        <ClientGenerator />
+      </Section>
 
       <Section title="How it works">
         <ol style={{ paddingLeft: 20, lineHeight: 2 }}>
