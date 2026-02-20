@@ -14,31 +14,27 @@ type FontFamily = "system" | "Inter" | "Poppins" | "Roboto";
 type HeaderStyle = "solid" | "gradient" | "minimal";
 
 interface BotConfig {
-  // Tab 1: Identity
   widgetId: string;
   assistantId: string;
   avatarUrl: string;
   displayName: string;
   greeting: string;
-  quickReplies: string; // comma-separated
+  quickReplies: string;
   description: string;
   messagePlaceholder: string;
   footer: string;
-  // Tab 2: Appearance
   primaryColor: string;
   fontFamily: FontFamily;
   themeMode: ThemeMode;
   headerStyle: HeaderStyle;
   cornerRadius: CornerRadius;
   customCss: string;
-  // Tab 3: Deploy
   deployedUrl: string;
   chatInterface: ChatInterface;
   chatLauncher: ChatLauncher;
   useAvatarForButton: boolean;
   buttonImageUrl: string;
   proactiveMessage: string;
-  // Tab 4: Features
   messageFeedback: boolean;
   allowFileUpload: boolean;
   notificationSound: boolean;
@@ -75,47 +71,31 @@ const DEFAULT_CONFIG: BotConfig = {
   historyReset: "never",
 };
 
-// ─── Primitive UI pieces ───────────────────────────────────────────────────────
+type Setter = <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
 
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
+// ─── Primitives ────────────────────────────────────────────────────────────────
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-        checked ? "bg-blue-600" : "bg-gray-200"
+      className={`relative inline-flex h-[26px] w-[48px] shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+        checked ? "bg-blue-600 focus-visible:ring-blue-600" : "bg-gray-200 focus-visible:ring-gray-400"
       }`}
     >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
-          checked ? "translate-x-6" : "translate-x-1"
-        }`}
-      />
+      <span className={`pointer-events-none inline-block h-[22px] w-[22px] rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ${checked ? "translate-x-[24px]" : "translate-x-[2px]"}`} />
     </button>
   );
 }
 
-function FieldLabel({
-  children,
-  hint,
-}: {
-  children: React.ReactNode;
-  hint?: string;
-}) {
+function Label({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
-    <div className="mb-1.5">
-      <label className="block text-sm font-medium text-gray-700">
-        {children}
-      </label>
-      {hint && <p className="mt-0.5 text-xs text-gray-400">{hint}</p>}
+    <div className="mb-2">
+      <p className="text-[13px] font-semibold text-gray-800">{children}</p>
+      {sub && <p className="mt-0.5 text-[11px] leading-snug text-gray-400">{sub}</p>}
     </div>
   );
 }
@@ -125,7 +105,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...rest}
-      className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 ${className}`}
+      className={`h-10 w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3.5 text-[13px] text-gray-900 outline-none transition-all placeholder:text-gray-400 hover:border-gray-300 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 ${className}`}
     />
   );
 }
@@ -135,672 +115,487 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...rest}
-      className={`w-full resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 ${className}`}
+      className={`w-full resize-none rounded-xl border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-[13px] text-gray-900 outline-none transition-all placeholder:text-gray-400 hover:border-gray-300 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 ${className}`}
     />
   );
 }
 
-function Select({
-  children,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+function Select({ children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+      className="h-10 w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3.5 text-[13px] text-gray-900 outline-none transition-all hover:border-gray-300 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
     >
       {children}
     </select>
   );
 }
 
-function Card({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+function Section({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
-    <div
-      className={`rounded-2xl border border-gray-100 bg-white p-6 shadow-sm ${className}`}
-    >
+    <div className={`rounded-2xl border border-gray-200/60 bg-white p-5 ${className}`}>
+      <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.1em] text-gray-400">{title}</p>
       {children}
     </div>
   );
 }
 
-function CardTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="mb-5 text-sm font-semibold uppercase tracking-widest text-gray-400">
-      {children}
-    </h2>
-  );
+function Field({ children }: { children: React.ReactNode }) {
+  return <div className="mb-5 last:mb-0">{children}</div>;
 }
 
-function FieldRow({ children }: { children: React.ReactNode }) {
-  return <div className="mb-4 last:mb-0">{children}</div>;
-}
-
-// Image URL input with live circular preview
-function AvatarInput({
-  label,
-  hint,
-  value,
-  onChange,
-  placeholder = "https://example.com/image.png",
-}: {
-  label: string;
-  hint?: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-}) {
-  const isUrl = value.startsWith("http");
+function Segment<T extends string>({ options, value, onChange }: { options: { value: T; label: string }[]; value: T; onChange: (v: T) => void }) {
   return (
-    <FieldRow>
-      <FieldLabel hint={hint}>{label}</FieldLabel>
-      <div className="flex items-center gap-3">
-        <div className="shrink-0">
-          {isUrl ? (
-            <img
-              src={value}
-              alt="preview"
-              className="h-10 w-10 rounded-full border border-gray-200 object-cover shadow-sm"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.visibility = "hidden";
-              }}
-              onLoad={(e) => {
-                (e.target as HTMLImageElement).style.visibility = "visible";
-              }}
-            />
-          ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-gray-300 bg-gray-50">
-              <span className="text-base text-gray-300">?</span>
-            </div>
-          )}
-        </div>
-        <Input
-          type="url"
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </div>
-    </FieldRow>
-  );
-}
-
-function ToggleRow({
-  label,
-  description,
-  checked,
-  onChange,
-}: {
-  label: string;
-  description?: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between border-b border-gray-50 py-4 last:border-0 last:pb-0">
-      <div className="flex-1 pr-6">
-        <p className="text-sm font-medium text-gray-800">{label}</p>
-        {description && (
-          <p className="mt-0.5 text-xs text-gray-400">{description}</p>
-        )}
-      </div>
-      <Toggle checked={checked} onChange={onChange} />
-    </div>
-  );
-}
-
-function SegmentControl<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: { value: T; label: string }[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex gap-2">
-      {options.map((opt) => (
+    <div className="flex rounded-xl border border-gray-200 bg-gray-50/50 p-1">
+      {options.map((o) => (
         <button
-          key={opt.value}
+          key={o.value}
           type="button"
-          onClick={() => onChange(opt.value)}
-          className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-all duration-150 ${
-            value === opt.value
-              ? "border-blue-500 bg-blue-50 text-blue-700"
-              : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+          onClick={() => onChange(o.value)}
+          className={`flex-1 rounded-lg py-2 text-[12px] font-semibold transition-all duration-150 ${
+            value === o.value ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          {opt.label}
+          {o.label}
         </button>
       ))}
     </div>
   );
 }
 
-// ─── Tab 1: Bot Identity ───────────────────────────────────────────────────────
-
-function TabIdentity({
-  config,
-  set,
-}: {
-  config: BotConfig;
-  set: <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
-}) {
+function AvatarField({ label, sub, value, onChange }: { label: string; sub?: string; value: string; onChange: (v: string) => void }) {
+  const isUrl = value.startsWith("http");
   return (
-    <div className="grid gap-5">
-      {/* Core config (feeds into clients.ts) */}
-      <Card>
-        <CardTitle>Bot Configuration</CardTitle>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FieldRow>
-            <FieldLabel hint='Lowercase slug, e.g. "miami-dental". Used as the widget ID.'>
-              Widget ID
-            </FieldLabel>
-            <Input
-              placeholder="miami-dental"
-              value={config.widgetId}
-              onChange={(e) =>
-                set(
-                  "widgetId",
-                  e.target.value.toLowerCase().replace(/\s+/g, "-")
-                )
-              }
+    <Field>
+      <Label sub={sub}>{label}</Label>
+      <div className="flex items-center gap-3">
+        <div className="shrink-0">
+          {isUrl ? (
+            <img
+              src={value}
+              alt=""
+              className="h-9 w-9 rounded-full border border-gray-200 object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }}
+              onLoad={(e) => { (e.target as HTMLImageElement).style.visibility = "visible"; }}
             />
-          </FieldRow>
-          <FieldRow>
-            <FieldLabel hint="From your Vapi dashboard.">
-              Vapi Assistant ID
-            </FieldLabel>
-            <Input
-              placeholder="f5381cfd-af11-44d5-9bf3-5d1d87c7b121"
-              value={config.assistantId}
-              onChange={(e) => set("assistantId", e.target.value)}
-              className="font-mono"
-            />
-          </FieldRow>
+          ) : (
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-dashed border-gray-300 bg-gray-50 text-sm text-gray-300">?</div>
+          )}
         </div>
-        <FieldRow>
-          <FieldLabel hint="The opening message the bot sends when the chat is opened.">
-            Greeting Message
-          </FieldLabel>
-          <Input
-            placeholder="Hello! Welcome to Miami Dental. How can I help you today?"
-            value={config.greeting}
-            onChange={(e) => set("greeting", e.target.value)}
-          />
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel hint="Comma-separated. Leave blank for none. e.g. Book appointment, Office hours">
-            Quick Reply Buttons
-          </FieldLabel>
-          <Input
-            placeholder="Book appointment, Office hours, Insurance"
-            value={config.quickReplies}
-            onChange={(e) => set("quickReplies", e.target.value)}
-          />
-        </FieldRow>
-      </Card>
+        <Input type="url" placeholder="https://example.com/avatar.png" value={value} onChange={(e) => onChange(e.target.value)} />
+      </div>
+    </Field>
+  );
+}
 
-      {/* Display / branding */}
-      <Card>
-        <CardTitle>Display &amp; Branding</CardTitle>
-        <AvatarInput
-          label="Bot Avatar"
-          hint="Paste an image URL — the circular preview updates as you type."
-          value={config.avatarUrl}
-          onChange={(v) => set("avatarUrl", v)}
-        />
-        <FieldRow>
-          <FieldLabel>Display Name</FieldLabel>
-          <Input
-            placeholder="Las Vegas Dental Assistant"
-            value={config.displayName}
-            onChange={(e) => set("displayName", e.target.value)}
-          />
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel hint="A brief purpose statement shown to users in the chat header.">
-            Bot Description
-          </FieldLabel>
-          <Textarea
-            rows={3}
-            placeholder="I'm here to help answer questions about your dental care and appointments."
-            value={config.description}
-            onChange={(e) => set("description", e.target.value)}
-          />
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel hint="Placeholder text inside the chat input field.">
-            Message Placeholder
-          </FieldLabel>
-          <Input
-            placeholder="Type your message..."
-            value={config.messagePlaceholder}
-            onChange={(e) => set("messagePlaceholder", e.target.value)}
-          />
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel hint="Branding text or link shown at the bottom of the chat window.">
-            Footer
-          </FieldLabel>
-          <Input
-            placeholder="Powered by Acme Corp"
-            value={config.footer}
-            onChange={(e) => set("footer", e.target.value)}
-          />
-        </FieldRow>
-      </Card>
+function ToggleRow({ label, sub, checked, onChange }: { label: string; sub?: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between py-3.5 border-b border-gray-100 last:border-0 last:pb-0 first:pt-0">
+      <div className="pr-4">
+        <p className="text-[13px] font-semibold text-gray-800">{label}</p>
+        {sub && <p className="mt-0.5 text-[11px] text-gray-400">{sub}</p>}
+      </div>
+      <Toggle checked={checked} onChange={onChange} />
     </div>
   );
 }
 
-// ─── Tab 2: Bot Appearance ─────────────────────────────────────────────────────
+// ─── Live preview ──────────────────────────────────────────────────────────────
 
-function TabAppearance({
-  config,
-  set,
-}: {
-  config: BotConfig;
-  set: <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
-}) {
+function LivePreview({ config }: { config: BotConfig }) {
+  const c = config;
+  const isDark = c.themeMode === "dark";
+  const rad = c.cornerRadius === "round" ? "16px" : "6px";
+  const bubbleRad = c.cornerRadius === "round" ? "16px" : "6px";
+  const quickReplies = c.quickReplies.split(",").map((s) => s.trim()).filter(Boolean);
+
+  const headerBg = c.headerStyle === "gradient"
+    ? `linear-gradient(135deg, ${c.primaryColor}, ${c.primaryColor}dd)`
+    : c.headerStyle === "minimal"
+    ? isDark ? "#1e1e1e" : "#ffffff"
+    : c.primaryColor;
+  const headerColor = c.headerStyle === "minimal" ? (isDark ? "#fff" : "#111") : "#fff";
+  const headerBorder = c.headerStyle === "minimal" ? (isDark ? "1px solid #333" : "1px solid #e5e5e5") : "none";
+
+  const panelBg = isDark ? "#1a1a1a" : "#ffffff";
+  const panelText = isDark ? "#e5e5e5" : "#1e293b";
+  const botBubbleBg = isDark ? "#2a2a2a" : "#f1f5f9";
+  const inputBg = isDark ? "#2a2a2a" : "#f8fafc";
+  const inputBorder = isDark ? "#333" : "#e2e8f0";
+  const footerColor = isDark ? "#666" : "#94a3b8";
+
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      {/* Branding */}
-      <Card>
-        <CardTitle>Branding</CardTitle>
-        <FieldRow>
-          <FieldLabel>Primary Color</FieldLabel>
+    <div className="flex flex-col items-center">
+      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">Live Preview</p>
+      {/* Simulated page background */}
+      <div className="relative w-[320px] rounded-2xl border border-gray-200 bg-gray-100 p-4 shadow-inner" style={{ minHeight: 480 }}>
+        {/* Fake page content lines */}
+        <div className="mb-2 h-3 w-24 rounded bg-gray-300/50" />
+        <div className="mb-1.5 h-2 w-full rounded bg-gray-200/70" />
+        <div className="mb-1.5 h-2 w-3/4 rounded bg-gray-200/70" />
+        <div className="mb-1.5 h-2 w-5/6 rounded bg-gray-200/70" />
+        <div className="mb-4 h-2 w-2/3 rounded bg-gray-200/70" />
+        <div className="mb-1.5 h-2 w-full rounded bg-gray-200/70" />
+        <div className="mb-1.5 h-2 w-4/5 rounded bg-gray-200/70" />
+
+        {/* Widget mockup */}
+        <div
+          className="absolute bottom-14 right-4 left-4 flex flex-col overflow-hidden shadow-2xl transition-all duration-300"
+          style={{ borderRadius: rad, background: panelBg, color: panelText }}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center gap-2.5 px-4 py-3"
+            style={{ background: headerBg, color: headerColor, borderBottom: headerBorder }}
+          >
+            {c.avatarUrl.startsWith("http") && (
+              <img src={c.avatarUrl} alt="" className="h-7 w-7 rounded-full border border-white/20 object-cover" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-bold truncate">{c.displayName || "Chat"}</p>
+              {c.description && <p className="text-[10px] opacity-70 truncate">{c.description}</p>}
+            </div>
+            <span className="text-base opacity-60 cursor-default">×</span>
+          </div>
+
+          {/* Messages */}
+          <div className="flex flex-col gap-2.5 px-3 py-3" style={{ fontSize: 12, lineHeight: 1.5 }}>
+            {/* Bot greeting */}
+            <div className="flex items-end gap-2">
+              {c.avatarUrl.startsWith("http") ? (
+                <img src={c.avatarUrl} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover" />
+              ) : (
+                <div className="h-5 w-5 shrink-0 rounded-full" style={{ background: c.primaryColor, opacity: 0.2 }} />
+              )}
+              <div
+                className="max-w-[80%] px-3 py-2 transition-all duration-200"
+                style={{ background: botBubbleBg, borderRadius: `${bubbleRad} ${bubbleRad} ${bubbleRad} 4px` }}
+              >
+                {c.greeting || "Hello!"}
+              </div>
+            </div>
+            {/* User message */}
+            <div className="flex justify-end">
+              <div
+                className="max-w-[80%] px-3 py-2 text-white transition-all duration-200"
+                style={{ background: c.primaryColor, borderRadius: `${bubbleRad} ${bubbleRad} 4px ${bubbleRad}` }}
+              >
+                Tell me more
+              </div>
+            </div>
+            {/* Bot response */}
+            <div className="flex items-end gap-2">
+              {c.avatarUrl.startsWith("http") ? (
+                <img src={c.avatarUrl} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover" />
+              ) : (
+                <div className="h-5 w-5 shrink-0 rounded-full" style={{ background: c.primaryColor, opacity: 0.2 }} />
+              )}
+              <div
+                className="max-w-[80%] px-3 py-2 transition-all duration-200"
+                style={{ background: botBubbleBg, borderRadius: `${bubbleRad} ${bubbleRad} ${bubbleRad} 4px` }}
+              >
+                I&apos;d be happy to help! What would you like to know?
+                {c.messageFeedback && (
+                  <div className="mt-1.5 flex gap-2 text-[10px] opacity-50">
+                    <span className="cursor-default">👍</span>
+                    <span className="cursor-default">👎</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick replies */}
+          {quickReplies.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 px-3 pb-2">
+              {quickReplies.map((r) => (
+                <span
+                  key={r}
+                  className="inline-block cursor-default rounded-full px-2.5 py-1 text-[10px] font-medium transition-all"
+                  style={{ background: isDark ? "#333" : "#f1f5f9", color: isDark ? "#ccc" : "#475569" }}
+                >
+                  {r}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="flex items-center gap-2 border-t px-3 py-2.5" style={{ borderColor: inputBorder }}>
+            <div
+              className="h-8 flex-1 rounded-lg px-2.5 flex items-center text-[11px]"
+              style={{ background: inputBg, color: footerColor }}
+            >
+              {c.messagePlaceholder || "Type a message..."}
+            </div>
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] text-white font-bold"
+              style={{ background: c.primaryColor }}
+            >
+              ▶
+            </div>
+          </div>
+
+          {/* Footer */}
+          {c.footer && (
+            <div className="border-t px-3 py-1.5 text-center text-[9px]" style={{ borderColor: inputBorder, color: footerColor }}>
+              {c.footer}
+            </div>
+          )}
+        </div>
+
+        {/* Floating bubble */}
+        <div
+          className="absolute bottom-3 right-4 flex h-11 w-11 items-center justify-center rounded-full text-lg text-white shadow-lg transition-all duration-300"
+          style={{ background: c.primaryColor }}
+        >
+          💬
+        </div>
+
+        {/* Proactive message */}
+        {c.proactiveMessage && (
+          <div
+            className="absolute bottom-16 right-4 max-w-[180px] rounded-2xl rounded-br-sm border border-gray-200 bg-white px-3 py-2 text-center text-[11px] shadow-lg"
+          >
+            {c.proactiveMessage}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────────
+
+function TabIdentity({ config: c, set }: { config: BotConfig; set: Setter }) {
+  return (
+    <div className="space-y-4">
+      <Section title="Configuration">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field>
+            <Label sub='Lowercase slug, e.g. "miami-dental"'>Widget ID</Label>
+            <Input placeholder="miami-dental" value={c.widgetId} onChange={(e) => set("widgetId", e.target.value.toLowerCase().replace(/\s+/g, "-"))} />
+          </Field>
+          <Field>
+            <Label sub="From your Vapi dashboard">Vapi Assistant ID</Label>
+            <Input placeholder="f5381cfd-af11-44d5-..." value={c.assistantId} onChange={(e) => set("assistantId", e.target.value)} className="font-mono" />
+          </Field>
+        </div>
+        <Field>
+          <Label sub="Opening message when the chat is opened">Greeting</Label>
+          <Input placeholder="Hello! Welcome to..." value={c.greeting} onChange={(e) => set("greeting", e.target.value)} />
+        </Field>
+        <Field>
+          <Label sub="Comma-separated. e.g. Book appointment, Office hours">Quick Replies</Label>
+          <Input placeholder="Book appointment, Office hours, Insurance" value={c.quickReplies} onChange={(e) => set("quickReplies", e.target.value)} />
+        </Field>
+      </Section>
+      <Section title="Branding">
+        <AvatarField label="Bot Avatar" sub="Circular preview updates live" value={c.avatarUrl} onChange={(v) => set("avatarUrl", v)} />
+        <Field>
+          <Label>Display Name</Label>
+          <Input placeholder="Las Vegas Dental Assistant" value={c.displayName} onChange={(e) => set("displayName", e.target.value)} />
+        </Field>
+        <Field>
+          <Label sub="Brief purpose statement for the header">Description</Label>
+          <Textarea rows={2} placeholder="I help with dental care questions..." value={c.description} onChange={(e) => set("description", e.target.value)} />
+        </Field>
+        <Field>
+          <Label>Message Placeholder</Label>
+          <Input placeholder="Type your message..." value={c.messagePlaceholder} onChange={(e) => set("messagePlaceholder", e.target.value)} />
+        </Field>
+        <Field>
+          <Label sub="Bottom branding text">Footer</Label>
+          <Input placeholder="Powered by Acme Corp" value={c.footer} onChange={(e) => set("footer", e.target.value)} />
+        </Field>
+      </Section>
+    </div>
+  );
+}
+
+function TabAppearance({ config: c, set }: { config: BotConfig; set: Setter }) {
+  return (
+    <div className="space-y-4">
+      <Section title="Color & Typography">
+        <Field>
+          <Label>Primary Color</Label>
           <div className="flex items-center gap-3">
             <input
               type="color"
-              value={config.primaryColor}
+              value={c.primaryColor}
               onChange={(e) => set("primaryColor", e.target.value)}
-              className="h-10 w-14 shrink-0 cursor-pointer rounded-lg border border-gray-200 p-0.5 shadow-sm"
+              className="h-10 w-12 shrink-0 cursor-pointer rounded-xl border border-gray-200 p-0.5"
             />
             <Input
-              value={config.primaryColor}
+              value={c.primaryColor}
               maxLength={7}
               placeholder="#2563eb"
               className="font-mono"
-              onChange={(e) => {
-                const v = e.target.value;
-                if (/^#[0-9a-fA-F]{0,6}$/.test(v)) set("primaryColor", v);
-              }}
+              onChange={(e) => { if (/^#[0-9a-fA-F]{0,6}$/.test(e.target.value)) set("primaryColor", e.target.value); }}
             />
           </div>
-          <div
-            className="mt-2 h-8 w-full rounded-lg transition-all duration-300"
-            style={{ backgroundColor: config.primaryColor }}
-          />
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel>Font Family</FieldLabel>
-          <Select
-            value={config.fontFamily}
-            onChange={(e) => set("fontFamily", e.target.value as FontFamily)}
-          >
+        </Field>
+        <Field>
+          <Label>Font Family</Label>
+          <Select value={c.fontFamily} onChange={(e) => set("fontFamily", e.target.value as FontFamily)}>
             <option value="system">System Default</option>
             <option value="Inter">Inter</option>
             <option value="Poppins">Poppins</option>
             <option value="Roboto">Roboto</option>
           </Select>
-        </FieldRow>
-      </Card>
-
-      {/* Layout */}
-      <Card>
-        <CardTitle>Layout &amp; Style</CardTitle>
-        <FieldRow>
-          <FieldLabel>Theme Mode</FieldLabel>
-          <SegmentControl<ThemeMode>
-            value={config.themeMode}
+        </Field>
+      </Section>
+      <Section title="Layout">
+        <Field>
+          <Label>Theme</Label>
+          <Segment<ThemeMode>
+            value={c.themeMode}
             onChange={(v) => set("themeMode", v)}
-            options={[
-              { value: "light", label: "☀️  Light" },
-              { value: "dark", label: "🌙  Dark" },
-            ]}
+            options={[{ value: "light", label: "Light" }, { value: "dark", label: "Dark" }]}
           />
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel>Header Style</FieldLabel>
-          <Select
-            value={config.headerStyle}
-            onChange={(e) => set("headerStyle", e.target.value as HeaderStyle)}
-          >
-            <option value="solid">Solid Color</option>
+        </Field>
+        <Field>
+          <Label>Header Style</Label>
+          <Select value={c.headerStyle} onChange={(e) => set("headerStyle", e.target.value as HeaderStyle)}>
+            <option value="solid">Solid</option>
             <option value="gradient">Gradient</option>
-            <option value="minimal">Minimal / Borderless</option>
+            <option value="minimal">Minimal</option>
           </Select>
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel>Corner Radius</FieldLabel>
-          <SegmentControl<CornerRadius>
-            value={config.cornerRadius}
+        </Field>
+        <Field>
+          <Label>Corner Radius</Label>
+          <Segment<CornerRadius>
+            value={c.cornerRadius}
             onChange={(v) => set("cornerRadius", v)}
-            options={[
-              { value: "sharp", label: "⬛  Sharp" },
-              { value: "round", label: "⬜  Rounded" },
-            ]}
+            options={[{ value: "sharp", label: "Sharp" }, { value: "round", label: "Rounded" }]}
           />
-        </FieldRow>
-      </Card>
-
-      {/* Custom CSS */}
-      <Card className="lg:col-span-2">
-        <CardTitle>Custom CSS</CardTitle>
-        <FieldRow>
-          <FieldLabel hint="Advanced style overrides injected directly into the widget.">
-            CSS Overrides
-          </FieldLabel>
+        </Field>
+      </Section>
+      <Section title="Custom CSS">
+        <Field>
+          <Label sub="Advanced overrides injected into the widget">CSS</Label>
           <textarea
-            rows={10}
+            rows={8}
             spellCheck={false}
-            placeholder={
-              "/* Override widget styles */\n.vm-b {\n  background: #f0f4ff;\n  border-radius: 16px;\n}"
-            }
-            value={config.customCss}
+            placeholder={"/* widget overrides */\n.vm-b {\n  background: #f0f4ff;\n}"}
+            value={c.customCss}
             onChange={(e) => set("customCss", e.target.value)}
-            className="w-full resize-y rounded-xl border border-gray-800 bg-gray-950 px-4 py-3 font-mono text-sm leading-relaxed text-green-400 placeholder:text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-900"
+            className="w-full resize-y rounded-xl border border-gray-700 bg-[#0d1117] px-4 py-3 font-mono text-[12px] leading-relaxed text-emerald-400 placeholder:text-gray-600 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
           />
-        </FieldRow>
-      </Card>
+        </Field>
+      </Section>
     </div>
   );
 }
 
-// ─── Tab 3: Deploy Settings ────────────────────────────────────────────────────
-
-function EmbedPreview({
-  snippet,
-}: {
-  snippet: string;
-}) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(snippet).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-  return (
-    <div className="relative rounded-xl bg-gray-950 px-5 py-4">
-      <pre className="overflow-x-auto font-mono text-sm leading-relaxed text-green-400">
-        {snippet}
-      </pre>
-      <button
-        type="button"
-        onClick={handleCopy}
-        className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
-          copied
-            ? "bg-green-500 text-white"
-            : "bg-white/10 text-white hover:bg-white/20"
-        }`}
-      >
-        {copied ? "✓ Copied!" : "Copy"}
-      </button>
-    </div>
-  );
-}
-
-function TabDeploy({
-  config,
-  set,
-}: {
-  config: BotConfig;
-  set: <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
-}) {
-  const embedSnippet = `<script\n  src="${config.deployedUrl}/api/widget.js"\n  data-widget-id="${config.widgetId || "YOUR_CLIENT_ID"}"\n  defer\n></script>`;
+function TabDeploy({ config: c, set }: { config: BotConfig; set: Setter }) {
+  const [copied, setCopied] = useState<"embed" | null>(null);
+  const embedSnippet = `<script\n  src="${c.deployedUrl}/api/widget.js"\n  data-widget-id="${c.widgetId || "YOUR_CLIENT_ID"}"\n  defer\n></script>`;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      {/* Embed Code */}
-      <Card className="lg:col-span-2">
-        <CardTitle>Embed Code</CardTitle>
-        <FieldRow>
-          <FieldLabel hint="The base URL where this platform is deployed.">
-            Deployed URL
-          </FieldLabel>
-          <Input
-            placeholder="https://vapi-chatbot.vercel.app"
-            value={config.deployedUrl}
-            onChange={(e) =>
-              set("deployedUrl", e.target.value.replace(/\/$/, ""))
-            }
-            className="font-mono"
-          />
-        </FieldRow>
-        <p className="mb-3 text-sm text-gray-500">
-          Paste this snippet before the closing{" "}
-          <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-700">
-            &lt;/body&gt;
-          </code>{" "}
-          tag on your website. Fill in your Widget ID on the{" "}
-          <strong>Bot Identity</strong> tab to populate it automatically.
-        </p>
-        <EmbedPreview snippet={embedSnippet} />
-      </Card>
-
-      {/* Interface */}
-      <Card>
-        <CardTitle>Chat Interface</CardTitle>
-        <FieldRow>
-          <FieldLabel hint="How the chat widget is presented on the page.">
-            Interface Type
-          </FieldLabel>
-          <Select
-            value={config.chatInterface}
-            onChange={(e) =>
-              set("chatInterface", e.target.value as ChatInterface)
-            }
+    <div className="space-y-4">
+      <Section title="Embed Code">
+        <Field>
+          <Label sub="Base URL of this platform">Deployed URL</Label>
+          <Input placeholder="https://vapi-chatbot.vercel.app" value={c.deployedUrl} onChange={(e) => set("deployedUrl", e.target.value.replace(/\/$/, ""))} className="font-mono" />
+        </Field>
+        <div className="relative rounded-xl bg-[#0d1117] px-5 py-4">
+          <pre className="overflow-x-auto font-mono text-[12px] leading-relaxed text-emerald-400">{embedSnippet}</pre>
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(embedSnippet);
+              setCopied("embed");
+              setTimeout(() => setCopied(null), 2000);
+            }}
+            className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${copied === "embed" ? "bg-emerald-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/20"}`}
           >
+            {copied === "embed" ? "Copied!" : "Copy"}
+          </button>
+        </div>
+      </Section>
+      <Section title="Widget Settings">
+        <Field>
+          <Label sub="How the widget appears on the page">Interface</Label>
+          <Select value={c.chatInterface} onChange={(e) => set("chatInterface", e.target.value as ChatInterface)}>
             <option value="floating-widget">Floating Widget</option>
             <option value="embedded-iframe">Embedded iFrame</option>
           </Select>
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel hint="How the chat window is triggered.">
-            Chat Launcher
-          </FieldLabel>
-          <Select
-            value={config.chatLauncher}
-            onChange={(e) =>
-              set("chatLauncher", e.target.value as ChatLauncher)
-            }
-          >
-            <option value="bubble">Bubble Button</option>
+        </Field>
+        <Field>
+          <Label sub="How the chat is triggered">Launcher</Label>
+          <Select value={c.chatLauncher} onChange={(e) => set("chatLauncher", e.target.value as ChatLauncher)}>
+            <option value="bubble">Bubble</option>
             <option value="text-bar">Text Bar</option>
           </Select>
-        </FieldRow>
-      </Card>
-
-      {/* Launcher Button */}
-      <Card>
-        <CardTitle>Launcher Button</CardTitle>
-        <FieldRow>
-          <FieldLabel>Button Image</FieldLabel>
-          <div className="mb-4 flex items-center gap-3">
-            <Toggle
-              checked={config.useAvatarForButton}
-              onChange={(v) => set("useAvatarForButton", v)}
-            />
-            <span className="text-sm text-gray-600">Use bot avatar</span>
+        </Field>
+        <Field>
+          <Label>Button Image</Label>
+          <div className="flex items-center gap-3 mb-3">
+            <Toggle checked={c.useAvatarForButton} onChange={(v) => set("useAvatarForButton", v)} />
+            <span className="text-[12px] text-gray-500">Use bot avatar</span>
           </div>
-          {!config.useAvatarForButton && (
-            <AvatarInput
-              label="Custom Button Image URL"
-              value={config.buttonImageUrl}
-              onChange={(v) => set("buttonImageUrl", v)}
-            />
+          {!c.useAvatarForButton && (
+            <AvatarField label="Custom Image" value={c.buttonImageUrl} onChange={(v) => set("buttonImageUrl", v)} />
           )}
-        </FieldRow>
-      </Card>
-
-      {/* Proactive Message */}
-      <Card className="lg:col-span-2">
-        <CardTitle>Proactive Message</CardTitle>
-        <p className="mb-4 text-sm text-gray-500">
-          A pop-up message shown above the launcher bubble to catch the
-          visitor&apos;s attention before they open the chat.
-        </p>
-        <div className="flex items-end gap-8">
-          <div className="flex-1">
-            <FieldLabel>Message Text</FieldLabel>
-            <Input
-              placeholder="Hi! 👋 Need help?"
-              value={config.proactiveMessage}
-              onChange={(e) => set("proactiveMessage", e.target.value)}
-            />
-          </div>
-          {/* Live preview */}
-          <div className="shrink-0 pb-1">
-            <p className="mb-2 text-center text-xs text-gray-400">Preview</p>
-            <div className="flex flex-col items-center gap-2">
-              {config.proactiveMessage ? (
-                <div className="max-w-[180px] rounded-2xl rounded-br-sm border border-gray-200 bg-white px-3 py-2 text-center text-sm shadow-md">
-                  {config.proactiveMessage}
-                </div>
-              ) : (
-                <div className="max-w-[180px] rounded-2xl border border-dashed border-gray-200 px-3 py-2 text-center text-xs text-gray-400">
-                  No message yet
-                </div>
-              )}
-              <div
-                className="flex h-12 w-12 items-center justify-center rounded-full text-xl text-white shadow-lg"
-                style={{ backgroundColor: config.primaryColor }}
-              >
-                💬
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
+        </Field>
+        <Field>
+          <Label sub="Pop-up above the launcher bubble">Proactive Message</Label>
+          <Input placeholder="Hi! Need help?" value={c.proactiveMessage} onChange={(e) => set("proactiveMessage", e.target.value)} />
+        </Field>
+      </Section>
     </div>
   );
 }
 
-// ─── Tab 4: Features ───────────────────────────────────────────────────────────
-
-function TabFeatures({
-  config,
-  set,
-}: {
-  config: BotConfig;
-  set: <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
-}) {
+function TabFeatures({ config: c, set }: { config: BotConfig; set: Setter }) {
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      <Card>
-        <CardTitle>Engagement</CardTitle>
-        <ToggleRow
-          label="Message Feedback"
-          description="Show thumbs up / thumbs down reactions on bot messages."
-          checked={config.messageFeedback}
-          onChange={(v) => set("messageFeedback", v)}
-        />
-        <ToggleRow
-          label="Message Notification Sound"
-          description="Play a subtle chime when a new message arrives."
-          checked={config.notificationSound}
-          onChange={(v) => set("notificationSound", v)}
-        />
-        <ToggleRow
-          label="Allow File Upload"
-          description="Let users attach and send files within the chat."
-          checked={config.allowFileUpload}
-          onChange={(v) => set("allowFileUpload", v)}
-        />
-      </Card>
-
-      <Card>
-        <CardTitle>History &amp; Sessions</CardTitle>
-        <ToggleRow
-          label="Conversation History"
-          description="Allow users to resume their previous conversation session."
-          checked={config.conversationHistory}
-          onChange={(v) => set("conversationHistory", v)}
-        />
-        <FieldRow>
-          <FieldLabel hint="Determines when locally-stored conversation history is cleared.">
-            Chat History Reset
-          </FieldLabel>
-          <Select
-            value={config.historyReset}
-            onChange={(e) =>
-              set("historyReset", e.target.value as HistoryReset)
-            }
-          >
+    <div className="space-y-4">
+      <Section title="Engagement">
+        <ToggleRow label="Message Feedback" sub="Thumbs up / down on bot messages" checked={c.messageFeedback} onChange={(v) => set("messageFeedback", v)} />
+        <ToggleRow label="Notification Sound" sub="Chime on new messages" checked={c.notificationSound} onChange={(v) => set("notificationSound", v)} />
+        <ToggleRow label="File Upload" sub="Allow file attachments" checked={c.allowFileUpload} onChange={(v) => set("allowFileUpload", v)} />
+      </Section>
+      <Section title="Sessions">
+        <ToggleRow label="Conversation History" sub="Resume previous sessions" checked={c.conversationHistory} onChange={(v) => set("conversationHistory", v)} />
+        <Field>
+          <Label sub="When to clear stored history">History Reset</Label>
+          <Select value={c.historyReset} onChange={(e) => set("historyReset", e.target.value as HistoryReset)}>
             <option value="never">Never</option>
-            <option value="on-close">On Window Close</option>
-            <option value="24h">After 24 Hours</option>
+            <option value="on-close">On Close</option>
+            <option value="24h">After 24h</option>
           </Select>
-        </FieldRow>
-      </Card>
+        </Field>
+      </Section>
     </div>
   );
 }
 
 // ─── Publish modal ─────────────────────────────────────────────────────────────
 
-function CodeBlock({
-  label,
-  subLabel,
-  code,
-}: {
-  label: string;
-  subLabel: string;
-  code: string;
-}) {
+function CopyBlock({ label, sub, code }: { label: string; sub: string; code: string }) {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
   return (
     <div>
-      <p className="mb-0.5 text-sm font-semibold text-gray-900">{label}</p>
-      <p className="mb-2 text-xs text-gray-500">{subLabel}</p>
-      <div className="relative rounded-xl bg-gray-950 px-5 py-4">
-        <pre className="overflow-x-auto pr-16 font-mono text-sm leading-relaxed text-green-400 whitespace-pre">
-          {code}
-        </pre>
+      <p className="mb-0.5 text-[13px] font-bold text-gray-900">{label}</p>
+      <p className="mb-2 text-[11px] text-gray-500">{sub}</p>
+      <div className="relative rounded-xl bg-[#0d1117] px-5 py-4">
+        <pre className="overflow-x-auto pr-16 font-mono text-[12px] leading-relaxed text-emerald-400 whitespace-pre">{code}</pre>
         <button
           type="button"
-          onClick={handleCopy}
-          className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
-            copied
-              ? "bg-green-500 text-white"
-              : "bg-white/10 text-white hover:bg-white/20"
-          }`}
+          onClick={() => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+          className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${copied ? "bg-emerald-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/20"}`}
         >
-          {copied ? "✓ Copied!" : "Copy"}
+          {copied ? "Copied!" : "Copy"}
         </button>
       </div>
     </div>
   );
 }
 
-function PublishModal({
-  config,
-  onClose,
-}: {
-  config: BotConfig;
-  onClose: () => void;
-}) {
-  const quickRepliesArr = config.quickReplies
-    .split(",")
-    .map((r) => r.trim())
-    .filter(Boolean);
+function PublishModal({ config: c, onClose }: { config: BotConfig; onClose: () => void }) {
+  const qr = c.quickReplies.split(",").map((s) => s.trim()).filter(Boolean);
 
-  // Serialize a value as a TypeScript literal
   function tsVal(v: string | boolean | string[]): string {
     if (Array.isArray(v)) {
       if (v.length === 0) return "[]";
@@ -810,177 +605,100 @@ function PublishModal({
     return `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
   }
 
-  // Ordered list of [key, value] — required fields always present,
-  // optional fields only included when they differ from defaults.
-  type Field = [string, string | boolean | string[]];
-  const fields: Field[] = [
-    ["assistantId",  config.assistantId],
-    ["businessName", config.displayName],
-    ["greeting",     config.greeting],
-    ["quickReplies", quickRepliesArr],
-    ["primaryColor", config.primaryColor],
+  type F = [string, string | boolean | string[]];
+  const fields: F[] = [
+    ["assistantId", c.assistantId], ["businessName", c.displayName], ["greeting", c.greeting],
+    ["quickReplies", qr], ["primaryColor", c.primaryColor],
   ];
+  if (c.avatarUrl) fields.push(["avatarUrl", c.avatarUrl]);
+  if (c.description) fields.push(["description", c.description]);
+  if (c.messagePlaceholder && c.messagePlaceholder !== "Type your message...") fields.push(["messagePlaceholder", c.messagePlaceholder]);
+  if (c.footer) fields.push(["footer", c.footer]);
+  if (c.fontFamily !== "Inter") fields.push(["fontFamily", c.fontFamily]);
+  if (c.themeMode !== "light") fields.push(["themeMode", c.themeMode]);
+  if (c.headerStyle !== "solid") fields.push(["headerStyle", c.headerStyle]);
+  if (c.cornerRadius !== "round") fields.push(["cornerRadius", c.cornerRadius]);
+  if (c.customCss) fields.push(["customCss", c.customCss]);
+  if (c.chatInterface !== "floating-widget") fields.push(["chatInterface", c.chatInterface]);
+  if (c.chatLauncher !== "bubble") fields.push(["chatLauncher", c.chatLauncher]);
+  if (c.useAvatarForButton) fields.push(["useAvatarForButton", c.useAvatarForButton]);
+  if (c.buttonImageUrl) fields.push(["buttonImageUrl", c.buttonImageUrl]);
+  if (c.proactiveMessage) fields.push(["proactiveMessage", c.proactiveMessage]);
+  if (c.messageFeedback) fields.push(["messageFeedback", true]);
+  if (c.allowFileUpload) fields.push(["allowFileUpload", true]);
+  if (c.notificationSound) fields.push(["notificationSound", true]);
+  if (!c.conversationHistory) fields.push(["conversationHistory", false]);
+  if (c.historyReset !== "never") fields.push(["historyReset", c.historyReset]);
 
-  // Extended identity
-  if (config.avatarUrl)        fields.push(["avatarUrl",          config.avatarUrl]);
-  if (config.description)      fields.push(["description",        config.description]);
-  if (config.messagePlaceholder && config.messagePlaceholder !== "Type your message...")
-                               fields.push(["messagePlaceholder", config.messagePlaceholder]);
-  if (config.footer)           fields.push(["footer",             config.footer]);
-
-  // Appearance — only non-defaults
-  if (config.fontFamily !== "Inter")       fields.push(["fontFamily",   config.fontFamily]);
-  if (config.themeMode  !== "light")       fields.push(["themeMode",    config.themeMode]);
-  if (config.headerStyle !== "solid")      fields.push(["headerStyle",  config.headerStyle]);
-  if (config.cornerRadius !== "round")     fields.push(["cornerRadius", config.cornerRadius]);
-  if (config.customCss)                    fields.push(["customCss",    config.customCss]);
-
-  // Deploy — only non-defaults
-  if (config.chatInterface !== "floating-widget") fields.push(["chatInterface",      config.chatInterface]);
-  if (config.chatLauncher  !== "bubble")          fields.push(["chatLauncher",       config.chatLauncher]);
-  if (config.useAvatarForButton)                  fields.push(["useAvatarForButton", config.useAvatarForButton]);
-  if (config.buttonImageUrl)                      fields.push(["buttonImageUrl",     config.buttonImageUrl]);
-  if (config.proactiveMessage)                    fields.push(["proactiveMessage",   config.proactiveMessage]);
-
-  // Features — only non-defaults (defaults are all false / "never")
-  if (config.messageFeedback)               fields.push(["messageFeedback",    config.messageFeedback]);
-  if (config.allowFileUpload)               fields.push(["allowFileUpload",    config.allowFileUpload]);
-  if (config.notificationSound)             fields.push(["notificationSound",  config.notificationSound]);
-  if (!config.conversationHistory)          fields.push(["conversationHistory",config.conversationHistory]);
-  if (config.historyReset !== "never")      fields.push(["historyReset",       config.historyReset]);
-
-  const embedSnippet =
-    `<script\n  src="${config.deployedUrl}/api/widget.js"\n` +
-    `  data-widget-id="${config.widgetId}"\n  defer\n></script>`;
-
-  const clientsEntry =
-    `"${config.widgetId}": {\n` +
-    fields.map(([k, v]) => `  ${k}: ${tsVal(v)},`).join("\n") +
-    "\n},";
+  const embed = `<script\n  src="${c.deployedUrl}/api/widget.js"\n  data-widget-id="${c.widgetId}"\n  defer\n></script>`;
+  const entry = `"${c.widgetId}": {\n` + fields.map(([k, v]) => `  ${k}: ${tsVal(v)},`).join("\n") + "\n},";
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        {/* Modal header */}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
         <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
           <div>
-            <h2 className="text-base font-bold text-gray-900">
-              Ready to deploy 🚀
-            </h2>
-            <p className="mt-0.5 text-sm text-gray-500">
-              Complete these two steps to go live with{" "}
-              <span className="font-medium text-gray-700">
-                {config.widgetId}
-              </span>
-              .
-            </p>
+            <h2 className="text-[15px] font-bold text-gray-900">Ready to deploy</h2>
+            <p className="mt-0.5 text-[12px] text-gray-500">Two steps to go live with <span className="font-semibold text-gray-700">{c.widgetId}</span></p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
-          >
-            ✕
-          </button>
+          <button type="button" onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">✕</button>
         </div>
-
-        {/* Modal body */}
         <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-6">
-          <CodeBlock
-            label="1. Embed snippet — give this to the client"
-            subLabel="Paste before </body> in their HTML (WordPress, Squarespace, Webflow, etc.)"
-            code={embedSnippet}
-          />
-          <CodeBlock
-            label="2. clients.ts entry — paste into GitHub"
-            subLabel="Add this block inside const clients = { … } in src/lib/clients.ts, then redeploy"
-            code={clientsEntry}
-          />
+          <CopyBlock label="1. Embed snippet" sub="Paste before </body> in their HTML" code={embed} />
+          <CopyBlock label="2. clients.ts entry" sub="Add inside const clients = { … } in src/lib/clients.ts, then redeploy" code={entry} />
         </div>
-
-        {/* Modal footer */}
-        <div className="border-t border-gray-100 px-6 py-4 flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl bg-gray-100 px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
-          >
-            Done
-          </button>
+        <div className="flex justify-end border-t border-gray-100 px-6 py-4">
+          <button type="button" onClick={onClose} className="rounded-xl bg-gray-900 px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-gray-800">Done</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Tab navigation ────────────────────────────────────────────────────────────
+// ─── Nav ───────────────────────────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "identity", label: "Bot Identity", icon: "🤖" },
-  { id: "appearance", label: "Bot Appearance", icon: "🎨" },
-  { id: "deploy", label: "Deploy Settings", icon: "🚀" },
-  { id: "features", label: "Features", icon: "⚡" },
+const TABS: { id: Tab; label: string }[] = [
+  { id: "identity", label: "Identity" },
+  { id: "appearance", label: "Appearance" },
+  { id: "deploy", label: "Deploy" },
+  { id: "features", label: "Features" },
 ];
 
-// ─── Root component ────────────────────────────────────────────────────────────
+// ─── Root ──────────────────────────────────────────────────────────────────────
 
 export default function BotBuilder() {
-  const [activeTab, setActiveTab] = useState<Tab>("identity");
+  const [tab, setTab] = useState<Tab>("identity");
   const [config, setConfig] = useState<BotConfig>(DEFAULT_CONFIG);
   const [showModal, setShowModal] = useState(false);
 
-  const set = useCallback(<K extends keyof BotConfig>(k: K, v: BotConfig[K]) => {
+  const set: Setter = useCallback(<K extends keyof BotConfig>(k: K, v: BotConfig[K]) => {
     setConfig((prev) => ({ ...prev, [k]: v }));
   }, []);
 
-  const canPublish = config.widgetId.trim() && config.assistantId.trim();
-
-  const handlePublish = () => {
-    if (!canPublish) {
-      setActiveTab("identity");
-      return;
-    }
-    setShowModal(true);
-  };
+  const canPublish = !!(config.widgetId.trim() && config.assistantId.trim());
 
   return (
-    <div className="min-h-screen bg-gray-50/80">
-      {showModal && (
-        <PublishModal config={config} onClose={() => setShowModal(false)} />
-      )}
-      {/* ── Sticky header ───────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/90 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <div className="flex min-h-screen flex-col bg-[#fafafa]">
+      {showModal && <PublishModal config={config} onClose={() => setShowModal(false)} />}
+
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b border-gray-200/60 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3.5">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-lg shadow-sm">
-              🤖
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" /><path d="M10 15h.01" /><path d="M14 15h.01" />
+              </svg>
             </div>
-            <div>
-              <h1 className="text-base font-bold tracking-tight text-gray-900">
-                Bot Builder
-              </h1>
-              <p className="text-xs text-gray-400">
-                Configure and deploy your AI chatbot
-              </p>
-            </div>
+            <span className="text-[15px] font-bold tracking-tight text-gray-900">Bot Builder</span>
           </div>
           <button
             type="button"
-            onClick={handlePublish}
-            title={
-              !canPublish
-                ? "Fill in Widget ID and Assistant ID on the Bot Identity tab first"
-                : undefined
-            }
-            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 active:scale-95 ${
+            onClick={() => canPublish ? setShowModal(true) : setTab("identity")}
+            className={`rounded-xl px-5 py-2 text-[13px] font-semibold transition-all duration-200 active:scale-[0.97] ${
               canPublish
-                ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:shadow-md"
-                : "bg-gray-300 cursor-not-allowed"
+                ? "bg-gray-900 text-white shadow-sm hover:bg-gray-800"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
           >
             Publish Changes
@@ -988,45 +706,42 @@ export default function BotBuilder() {
         </div>
       </header>
 
-      {/* ── Sticky tab bar ──────────────────────────────────────────────────── */}
-      <div className="sticky top-[65px] z-40 border-b border-gray-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-        <div className="mx-auto max-w-5xl px-6">
-          <nav className="flex">
-            {TABS.map((tab) => (
+      {/* ── Body ────────────────────────────────────────────────────────────── */}
+      <div className="mx-auto flex w-full max-w-[1400px] flex-1 gap-6 px-6 py-6">
+        {/* Left: config panel */}
+        <div className="flex-1 min-w-0 max-w-[640px]">
+          {/* Tab nav */}
+          <div className="mb-6 flex rounded-2xl border border-gray-200/60 bg-white p-1.5">
+            {TABS.map((t) => (
               <button
-                key={tab.id}
+                key={t.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors duration-150 ${
-                  activeTab === tab.id
-                    ? "text-blue-600"
-                    : "text-gray-500 hover:text-gray-800"
+                onClick={() => setTab(t.id)}
+                className={`flex-1 rounded-xl py-2.5 text-[12px] font-bold tracking-wide transition-all duration-150 ${
+                  tab === t.id
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                <span className="hidden sm:inline">{tab.icon}</span>
-                {tab.label}
-                {activeTab === tab.id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full bg-blue-600" />
-                )}
+                {t.label}
               </button>
             ))}
-          </nav>
+          </div>
+
+          {/* Tab content */}
+          <div className="pb-12">
+            {tab === "identity" && <TabIdentity config={config} set={set} />}
+            {tab === "appearance" && <TabAppearance config={config} set={set} />}
+            {tab === "deploy" && <TabDeploy config={config} set={set} />}
+            {tab === "features" && <TabFeatures config={config} set={set} />}
+          </div>
+        </div>
+
+        {/* Right: live preview */}
+        <div className="hidden lg:block sticky top-[72px] self-start pt-12">
+          <LivePreview config={config} />
         </div>
       </div>
-
-      {/* ── Tab content ─────────────────────────────────────────────────────── */}
-      <main className="mx-auto max-w-5xl px-6 py-8">
-        {activeTab === "identity" && (
-          <TabIdentity config={config} set={set} />
-        )}
-        {activeTab === "appearance" && (
-          <TabAppearance config={config} set={set} />
-        )}
-        {activeTab === "deploy" && <TabDeploy config={config} set={set} />}
-        {activeTab === "features" && (
-          <TabFeatures config={config} set={set} />
-        )}
-      </main>
     </div>
   );
 }
