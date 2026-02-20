@@ -22,10 +22,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { message, widgetId, sessionId } = body as {
+  const { message, widgetId, previousChatId } = body as {
     message?: unknown;
     widgetId?: unknown;
-    sessionId?: unknown;
+    previousChatId?: unknown;
   };
 
   if (typeof message !== "string" || !message.trim()) {
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
   let vapiResponse: Response;
   try {
-    vapiResponse = await fetch("https://api.vapi.ai/call/web", {
+    vapiResponse = await fetch("https://api.vapi.ai/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         assistantId: client.assistantId,
         input: message,
-        sessionId: typeof sessionId === "string" ? sessionId : undefined,
+        previousChatId: typeof previousChatId === "string" && previousChatId ? previousChatId : undefined,
       }),
     });
   } catch (err) {

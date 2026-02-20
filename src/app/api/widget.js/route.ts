@@ -48,7 +48,7 @@ function buildWidgetScript(): string {
   }
 
   // ── State ────────────────────────────────────────────────────────────────────
-  var sessionId = 'sess-' + Math.random().toString(36).slice(2);
+  var previousChatId = null;
   var isOpen = false;
   var isLoading = false;
   var cfg = {
@@ -228,13 +228,19 @@ function buildWidgetScript(): string {
     fetch(origin + '/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, widgetId: widgetId, sessionId: sessionId })
+      body: JSON.stringify({ message: text, widgetId: widgetId, previousChatId: previousChatId })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         hideTyping();
         setLoading(false);
-        var reply = data && (data.message || data.response || data.output || data.text);
+        if (data && data.id) { previousChatId = data.id; }
+        var reply = null;
+        if (data && Array.isArray(data.output) && data.output.length > 0) {
+          var last = data.output[data.output.length - 1];
+          reply = last && (last.content || last.text || last.message);
+        }
+        if (!reply && data) { reply = data.message || data.response || data.text; }
         addMsg(reply || 'Sorry, I did not understand that. Please try again.', 'bot');
       })
       .catch(function () {
