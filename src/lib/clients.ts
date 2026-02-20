@@ -36,6 +36,13 @@ const clients: Record<string, ClientConfig> = {
     ],
     primaryColor: "#dc582a",
   },
+  "xyz": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "XYZ",
+    greeting: "Hello! How can I help you today?",
+    quickReplies: [],
+    primaryColor: "#2563eb",
+  },
 };
 
 export function getClient(widgetId: string): ClientConfig | null {
