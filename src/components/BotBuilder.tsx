@@ -15,8 +15,12 @@ type HeaderStyle = "solid" | "gradient" | "minimal";
 
 interface BotConfig {
   // Tab 1: Identity
+  widgetId: string;
+  assistantId: string;
   avatarUrl: string;
   displayName: string;
+  greeting: string;
+  quickReplies: string; // comma-separated
   description: string;
   messagePlaceholder: string;
   footer: string;
@@ -28,6 +32,7 @@ interface BotConfig {
   cornerRadius: CornerRadius;
   customCss: string;
   // Tab 3: Deploy
+  deployedUrl: string;
   chatInterface: ChatInterface;
   chatLauncher: ChatLauncher;
   useAvatarForButton: boolean;
@@ -42,8 +47,12 @@ interface BotConfig {
 }
 
 const DEFAULT_CONFIG: BotConfig = {
+  widgetId: "",
+  assistantId: "",
   avatarUrl: "",
   displayName: "",
+  greeting: "Hello! How can I help you today?",
+  quickReplies: "",
   description: "",
   messagePlaceholder: "Type your message...",
   footer: "",
@@ -53,6 +62,7 @@ const DEFAULT_CONFIG: BotConfig = {
   headerStyle: "solid",
   cornerRadius: "round",
   customCss: "",
+  deployedUrl: "https://vapi-chatbot.vercel.app",
   chatInterface: "floating-widget",
   chatLauncher: "bubble",
   useAvatarForButton: false,
@@ -284,54 +294,110 @@ function TabIdentity({
   set: <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
 }) {
   return (
-    <Card>
-      <CardTitle>Bot Identity</CardTitle>
-      <AvatarInput
-        label="Bot Avatar"
-        hint="Paste an image URL — the circular preview updates as you type."
-        value={config.avatarUrl}
-        onChange={(v) => set("avatarUrl", v)}
-      />
-      <FieldRow>
-        <FieldLabel>Display Name</FieldLabel>
-        <Input
-          placeholder="Las Vegas Dental Assistant"
-          value={config.displayName}
-          onChange={(e) => set("displayName", e.target.value)}
+    <div className="grid gap-5">
+      {/* Core config (feeds into clients.ts) */}
+      <Card>
+        <CardTitle>Bot Configuration</CardTitle>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldRow>
+            <FieldLabel hint='Lowercase slug, e.g. "miami-dental". Used as the widget ID.'>
+              Widget ID
+            </FieldLabel>
+            <Input
+              placeholder="miami-dental"
+              value={config.widgetId}
+              onChange={(e) =>
+                set(
+                  "widgetId",
+                  e.target.value.toLowerCase().replace(/\s+/g, "-")
+                )
+              }
+            />
+          </FieldRow>
+          <FieldRow>
+            <FieldLabel hint="From your Vapi dashboard.">
+              Vapi Assistant ID
+            </FieldLabel>
+            <Input
+              placeholder="f5381cfd-af11-44d5-9bf3-5d1d87c7b121"
+              value={config.assistantId}
+              onChange={(e) => set("assistantId", e.target.value)}
+              className="font-mono"
+            />
+          </FieldRow>
+        </div>
+        <FieldRow>
+          <FieldLabel hint="The opening message the bot sends when the chat is opened.">
+            Greeting Message
+          </FieldLabel>
+          <Input
+            placeholder="Hello! Welcome to Miami Dental. How can I help you today?"
+            value={config.greeting}
+            onChange={(e) => set("greeting", e.target.value)}
+          />
+        </FieldRow>
+        <FieldRow>
+          <FieldLabel hint="Comma-separated. Leave blank for none. e.g. Book appointment, Office hours">
+            Quick Reply Buttons
+          </FieldLabel>
+          <Input
+            placeholder="Book appointment, Office hours, Insurance"
+            value={config.quickReplies}
+            onChange={(e) => set("quickReplies", e.target.value)}
+          />
+        </FieldRow>
+      </Card>
+
+      {/* Display / branding */}
+      <Card>
+        <CardTitle>Display &amp; Branding</CardTitle>
+        <AvatarInput
+          label="Bot Avatar"
+          hint="Paste an image URL — the circular preview updates as you type."
+          value={config.avatarUrl}
+          onChange={(v) => set("avatarUrl", v)}
         />
-      </FieldRow>
-      <FieldRow>
-        <FieldLabel hint="A brief purpose statement shown to users in the chat header.">
-          Bot Description
-        </FieldLabel>
-        <Textarea
-          rows={3}
-          placeholder="I'm here to help answer questions about your dental care and appointments."
-          value={config.description}
-          onChange={(e) => set("description", e.target.value)}
-        />
-      </FieldRow>
-      <FieldRow>
-        <FieldLabel hint="Placeholder text inside the chat input field.">
-          Message Placeholder
-        </FieldLabel>
-        <Input
-          placeholder="Type your message..."
-          value={config.messagePlaceholder}
-          onChange={(e) => set("messagePlaceholder", e.target.value)}
-        />
-      </FieldRow>
-      <FieldRow>
-        <FieldLabel hint="Branding text or link shown at the bottom of the chat window.">
-          Footer
-        </FieldLabel>
-        <Input
-          placeholder="Powered by Acme Corp"
-          value={config.footer}
-          onChange={(e) => set("footer", e.target.value)}
-        />
-      </FieldRow>
-    </Card>
+        <FieldRow>
+          <FieldLabel>Display Name</FieldLabel>
+          <Input
+            placeholder="Las Vegas Dental Assistant"
+            value={config.displayName}
+            onChange={(e) => set("displayName", e.target.value)}
+          />
+        </FieldRow>
+        <FieldRow>
+          <FieldLabel hint="A brief purpose statement shown to users in the chat header.">
+            Bot Description
+          </FieldLabel>
+          <Textarea
+            rows={3}
+            placeholder="I'm here to help answer questions about your dental care and appointments."
+            value={config.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
+        </FieldRow>
+        <FieldRow>
+          <FieldLabel hint="Placeholder text inside the chat input field.">
+            Message Placeholder
+          </FieldLabel>
+          <Input
+            placeholder="Type your message..."
+            value={config.messagePlaceholder}
+            onChange={(e) => set("messagePlaceholder", e.target.value)}
+          />
+        </FieldRow>
+        <FieldRow>
+          <FieldLabel hint="Branding text or link shown at the bottom of the chat window.">
+            Footer
+          </FieldLabel>
+          <Input
+            placeholder="Powered by Acme Corp"
+            value={config.footer}
+            onChange={(e) => set("footer", e.target.value)}
+          />
+        </FieldRow>
+      </Card>
+    </div>
   );
 }
 
@@ -451,11 +517,37 @@ function TabAppearance({
 
 // ─── Tab 3: Deploy Settings ────────────────────────────────────────────────────
 
-const EMBED_SNIPPET = `<script
-  src="https://vapi-chatbot.vercel.app/api/widget.js"
-  data-widget-id="YOUR_CLIENT_ID"
-  defer
-></script>`;
+function EmbedPreview({
+  snippet,
+}: {
+  snippet: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(snippet).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div className="relative rounded-xl bg-gray-950 px-5 py-4">
+      <pre className="overflow-x-auto font-mono text-sm leading-relaxed text-green-400">
+        {snippet}
+      </pre>
+      <button
+        type="button"
+        onClick={handleCopy}
+        className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
+          copied
+            ? "bg-green-500 text-white"
+            : "bg-white/10 text-white hover:bg-white/20"
+        }`}
+      >
+        {copied ? "✓ Copied!" : "Copy"}
+      </button>
+    </div>
+  );
+}
 
 function TabDeploy({
   config,
@@ -464,47 +556,35 @@ function TabDeploy({
   config: BotConfig;
   set: <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(EMBED_SNIPPET).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
+  const embedSnippet = `<script\n  src="${config.deployedUrl}/api/widget.js"\n  data-widget-id="${config.widgetId || "YOUR_CLIENT_ID"}"\n  defer\n></script>`;
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       {/* Embed Code */}
       <Card className="lg:col-span-2">
         <CardTitle>Embed Code</CardTitle>
-        <p className="mb-4 text-sm text-gray-500">
+        <FieldRow>
+          <FieldLabel hint="The base URL where this platform is deployed.">
+            Deployed URL
+          </FieldLabel>
+          <Input
+            placeholder="https://vapi-chatbot.vercel.app"
+            value={config.deployedUrl}
+            onChange={(e) =>
+              set("deployedUrl", e.target.value.replace(/\/$/, ""))
+            }
+            className="font-mono"
+          />
+        </FieldRow>
+        <p className="mb-3 text-sm text-gray-500">
           Paste this snippet before the closing{" "}
           <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-700">
             &lt;/body&gt;
           </code>{" "}
-          tag on your website. Replace{" "}
-          <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-700">
-            YOUR_CLIENT_ID
-          </code>{" "}
-          with your assigned widget ID.
+          tag on your website. Fill in your Widget ID on the{" "}
+          <strong>Bot Identity</strong> tab to populate it automatically.
         </p>
-        <div className="relative rounded-xl bg-gray-950 px-5 py-4">
-          <pre className="overflow-x-auto font-mono text-sm leading-relaxed text-green-400">
-            {EMBED_SNIPPET}
-          </pre>
-          <button
-            type="button"
-            onClick={handleCopy}
-            className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
-              copied
-                ? "bg-green-500 text-white"
-                : "bg-white/10 text-white hover:bg-white/20"
-            }`}
-          >
-            {copied ? "✓ Copied!" : "Copy"}
-          </button>
-        </div>
+        <EmbedPreview snippet={embedSnippet} />
       </Card>
 
       {/* Interface */}
@@ -666,6 +746,135 @@ function TabFeatures({
   );
 }
 
+// ─── Publish modal ─────────────────────────────────────────────────────────────
+
+function CodeBlock({
+  label,
+  subLabel,
+  code,
+}: {
+  label: string;
+  subLabel: string;
+  code: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div>
+      <p className="mb-0.5 text-sm font-semibold text-gray-900">{label}</p>
+      <p className="mb-2 text-xs text-gray-500">{subLabel}</p>
+      <div className="relative rounded-xl bg-gray-950 px-5 py-4">
+        <pre className="overflow-x-auto pr-16 font-mono text-sm leading-relaxed text-green-400 whitespace-pre">
+          {code}
+        </pre>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={`absolute right-3 top-3 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
+            copied
+              ? "bg-green-500 text-white"
+              : "bg-white/10 text-white hover:bg-white/20"
+          }`}
+        >
+          {copied ? "✓ Copied!" : "Copy"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PublishModal({
+  config,
+  onClose,
+}: {
+  config: BotConfig;
+  onClose: () => void;
+}) {
+  const quickRepliesArr = config.quickReplies
+    .split(",")
+    .map((r) => r.trim())
+    .filter(Boolean);
+  const repliesTs =
+    quickRepliesArr.length === 0
+      ? "[]"
+      : `[\n      ${quickRepliesArr.map((r) => `"${r}"`).join(",\n      ")},\n    ]`;
+
+  const embedSnippet = `<script\n  src="${config.deployedUrl}/api/widget.js"\n  data-widget-id="${config.widgetId}"\n  defer\n></script>`;
+
+  const clientsEntry =
+    `"${config.widgetId}": {\n` +
+    `  assistantId: "${config.assistantId}",\n` +
+    `  businessName: "${config.displayName}",\n` +
+    `  greeting: "${config.greeting}",\n` +
+    `  quickReplies: ${repliesTs},\n` +
+    `  primaryColor: "${config.primaryColor}",\n` +
+    `},`;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+        {/* Modal header */}
+        <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
+          <div>
+            <h2 className="text-base font-bold text-gray-900">
+              Ready to deploy 🚀
+            </h2>
+            <p className="mt-0.5 text-sm text-gray-500">
+              Complete these two steps to go live with{" "}
+              <span className="font-medium text-gray-700">
+                {config.widgetId}
+              </span>
+              .
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Modal body */}
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-6">
+          <CodeBlock
+            label="1. Embed snippet — give this to the client"
+            subLabel="Paste before </body> in their HTML (WordPress, Squarespace, Webflow, etc.)"
+            code={embedSnippet}
+          />
+          <CodeBlock
+            label="2. clients.ts entry — paste into GitHub"
+            subLabel="Add this block inside const clients = { … } in src/lib/clients.ts, then redeploy"
+            code={clientsEntry}
+          />
+        </div>
+
+        {/* Modal footer */}
+        <div className="border-t border-gray-100 px-6 py-4 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl bg-gray-100 px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Tab navigation ────────────────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -680,25 +889,27 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 export default function BotBuilder() {
   const [activeTab, setActiveTab] = useState<Tab>("identity");
   const [config, setConfig] = useState<BotConfig>(DEFAULT_CONFIG);
-  const [publishState, setPublishState] = useState<
-    "idle" | "saving" | "saved"
-  >("idle");
+  const [showModal, setShowModal] = useState(false);
 
   const set = useCallback(<K extends keyof BotConfig>(k: K, v: BotConfig[K]) => {
     setConfig((prev) => ({ ...prev, [k]: v }));
   }, []);
 
-  const handlePublish = async () => {
-    setPublishState("saving");
-    // Stub: bundle the full config JSON and POST to a save endpoint
-    console.log("Publish payload:", JSON.stringify(config, null, 2));
-    await new Promise((r) => setTimeout(r, 800)); // simulate async save
-    setPublishState("saved");
-    setTimeout(() => setPublishState("idle"), 3000);
+  const canPublish = config.widgetId.trim() && config.assistantId.trim();
+
+  const handlePublish = () => {
+    if (!canPublish) {
+      setActiveTab("identity");
+      return;
+    }
+    setShowModal(true);
   };
 
   return (
     <div className="min-h-screen bg-gray-50/80">
+      {showModal && (
+        <PublishModal config={config} onClose={() => setShowModal(false)} />
+      )}
       {/* ── Sticky header ───────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/90 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -718,39 +929,18 @@ export default function BotBuilder() {
           <button
             type="button"
             onClick={handlePublish}
-            disabled={publishState === "saving"}
-            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 disabled:cursor-wait ${
-              publishState === "saved"
-                ? "bg-green-500 scale-95"
-                : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:shadow-md active:scale-95"
+            title={
+              !canPublish
+                ? "Fill in Widget ID and Assistant ID on the Bot Identity tab first"
+                : undefined
+            }
+            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 active:scale-95 ${
+              canPublish
+                ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:shadow-md"
+                : "bg-gray-300 cursor-not-allowed"
             }`}
           >
-            {publishState === "saving" && (
-              <svg
-                className="h-4 w-4 animate-spin"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                />
-              </svg>
-            )}
-            {publishState === "saved"
-              ? "✓ Published!"
-              : publishState === "saving"
-              ? "Publishing…"
-              : "Publish Changes"}
+            Publish Changes
           </button>
         </div>
       </header>
