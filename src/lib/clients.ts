@@ -61,28 +61,7 @@ const clients: Record<string, ClientConfig> = {
     ],
     primaryColor: "#dc582a",
   },
-  "xyz-2": {
-    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-    businessName: "XYZ-2",
-    greeting: "HI TESTING",
-    quickReplies: [
-      "TEST 1",
-      "TEST 2",
-    ],
-    primaryColor: "#9a532d",
-  },
-  "test-3": {
-    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-    businessName: "testing 3",
-    greeting: "Hello! this is a test",
-    quickReplies: [
-      "test1",
-      "test2",
-      "test3",
-    ],
-    primaryColor: "#dc582a",
-  },
-};
+
 
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
