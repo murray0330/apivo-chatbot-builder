@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const apiKey = process.env.VAPI_API_KEY;
+  const apiKey = process.env.VAPI_PRIVATE_KEY;
   if (!apiKey) {
     return NextResponse.json(
       { error: "Server misconfiguration" },
