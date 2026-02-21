@@ -318,8 +318,8 @@ function LivePreview({ config }: { config: BotConfig }) {
     <div className="flex flex-col items-center">
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">Live Preview</p>
 
-      {/* Wrapper positions the launcher bubble relative to the panel */}
-      <div className="relative">
+      {/* Wrapper: panel stacked above launcher bubble */}
+      <div className="flex flex-col items-end" style={{ width: 370 }}>
         {/* Chat panel — exact real-world size: 370 × 560 */}
         <div
           className="flex flex-col overflow-hidden shadow-2xl transition-all duration-300"
@@ -427,8 +427,8 @@ function LivePreview({ config }: { config: BotConfig }) {
           )}
         </div>
 
-        {/* Launcher bubble — sits at bottom-right corner like in production */}
-        <div className="absolute -bottom-5 -right-5 flex flex-col items-end gap-2">
+        {/* Launcher bubble — below the panel, right-aligned */}
+        <div className="mt-3 flex flex-col items-end gap-2">
           {c.proactiveMessage && (
             <div className="mb-1 max-w-[200px] rounded-2xl rounded-br-sm border border-gray-200 bg-white px-3 py-2 text-center text-[12px] shadow-lg" style={{ color: "#334155" }}>
               {c.proactiveMessage}
