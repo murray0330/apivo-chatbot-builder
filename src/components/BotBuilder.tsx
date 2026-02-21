@@ -856,6 +856,7 @@ function PublishModal({ config: c, onClose }: { config: BotConfig; onClose: () =
   if (c.useAvatarForButton) fields.push(["useAvatarForButton", c.useAvatarForButton]);
   if (c.buttonImageUrl) fields.push(["buttonImageUrl", c.buttonImageUrl]);
   if (c.proactiveMessage) fields.push(["proactiveMessage", c.proactiveMessage]);
+  if (c.glassEffect) fields.push(["glassEffect", true]);
   if (c.messageFeedback) fields.push(["messageFeedback", true]);
   if (c.allowFileUpload) fields.push(["allowFileUpload", true]);
   if (c.notificationSound) fields.push(["notificationSound", true]);
