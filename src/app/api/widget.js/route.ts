@@ -285,8 +285,8 @@ function buildWidgetScript(): string {
   panel.appendChild(header);
   panel.appendChild(msgsEl);
   panel.appendChild(quickEl);
-  panel.appendChild(footerEl);
   panel.appendChild(foot);
+  panel.appendChild(footerEl);
   document.body.appendChild(btn);
   document.body.appendChild(panel);
 
@@ -332,27 +332,37 @@ function buildWidgetScript(): string {
   function addMsg(text, role) {
     var isUser = role === 'user';
     var iconKey = isUser ? cfg.userBubbleIcon : cfg.botBubbleIcon;
+    var showAvatar = !isUser && cfg.avatarUrl;
 
     var bubble = document.createElement('div');
     bubble.className = 'vm ' + (isUser ? 'vm-u' : 'vm-b');
     if (isUser) { bubble.style.backgroundColor = cfg.primaryColor; }
     bubble.textContent = text;
 
-    if (iconKey) {
+    if (showAvatar || iconKey) {
       var row = document.createElement('div');
       row.className = 'vm-row' + (isUser ? ' vm-row-u' : ' vm-row-b');
 
       if (!isUser) {
-        var bIcon = document.createElement('div');
-        bIcon.className = 'vm-bicon';
-        bIcon.style.backgroundColor = cfg.primaryColor + '20';
-        bIcon.innerHTML = getIconSvg(iconKey, 13);
-        row.appendChild(bIcon);
+        if (showAvatar) {
+          var avImg = document.createElement('img');
+          avImg.src = cfg.avatarUrl;
+          avImg.alt = '';
+          avImg.className = 'vm-bicon';
+          avImg.style.objectFit = 'cover';
+          row.appendChild(avImg);
+        } else if (iconKey) {
+          var bIcon = document.createElement('div');
+          bIcon.className = 'vm-bicon';
+          bIcon.style.backgroundColor = cfg.primaryColor + '20';
+          bIcon.innerHTML = getIconSvg(iconKey, 13);
+          row.appendChild(bIcon);
+        }
       }
 
       row.appendChild(bubble);
 
-      if (isUser) {
+      if (isUser && iconKey) {
         var uIcon = document.createElement('div');
         uIcon.className = 'vm-uicon';
         uIcon.style.backgroundColor = cfg.primaryColor + '20';
@@ -538,7 +548,7 @@ function buildWidgetScript(): string {
       if (data.headerIcon)         { cfg.headerIcon = data.headerIcon; }
       if (data.botBubbleIcon)      { cfg.botBubbleIcon = data.botBubbleIcon; }
       if (data.userBubbleIcon)     { cfg.userBubbleIcon = data.userBubbleIcon; }
-      if (data.glassEffect)        { cfg.glassEffect = data.glassEffect; }
+      if (data.glassEffect != null) { cfg.glassEffect = !!data.glassEffect; }
     }
 
     // Load custom font if specified

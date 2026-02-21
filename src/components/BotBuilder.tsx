@@ -366,6 +366,9 @@ function LivePreview({ config }: { config: BotConfig }) {
             background: panelBg,
             color: panelText,
             fontSize: 14,
+            fontFamily: c.fontFamily && c.fontFamily !== "system"
+              ? `${c.fontFamily}, system-ui, -apple-system, sans-serif`
+              : undefined,
             border: panelBorder,
             boxShadow: panelShadow ?? "0 8px 32px rgba(0,0,0,0.18)",
             backdropFilter: panelBackdrop,
