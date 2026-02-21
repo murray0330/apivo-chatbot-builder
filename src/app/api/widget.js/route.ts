@@ -104,7 +104,7 @@ function buildWidgetScript(): string {
         'cursor:pointer;transition:opacity .2s;}' +
       '#vapi-proactive:hover{opacity:.85;}' +
       '#vapi-panel{position:fixed;bottom:92px;right:24px;z-index:2147483646;' +
-        'width:370px;max-height:560px;background:' + bgColor + ';border-radius:' + panelRadius + ';' +
+        'width:370px;height:560px;max-height:calc(100vh - 108px);background:' + bgColor + ';border-radius:' + panelRadius + ';' +
         'box-shadow:0 8px 32px rgba(0,0,0,.18);' +
         'display:flex;flex-direction:column;overflow:hidden;' +
         'font-family:' + font + ';font-size:14px;color:' + textColor + ';}' +
@@ -134,7 +134,7 @@ function buildWidgetScript(): string {
         'color:' + (isDark ? '#888' : '#94a3b8') + ';border-top:1px solid ' + borderColor + ';}' +
       '#vapi-foot{display:flex;gap:8px;padding:10px 12px;border-top:1px solid ' + borderColor + ';}' +
       '#vapi-input{flex:1;border:1px solid ' + inputBorder + ';border-radius:8px;' +
-        'padding:7px 10px;font-size:14px;outline:none;font-family:inherit;' +
+        'padding:7px 10px;font-size:16px;outline:none;font-family:inherit;' +
         'resize:none;line-height:1.4;max-height:80px;' +
         'background:' + inputBg + ';color:' + textColor + ';}' +
       '#vapi-input:focus{border-color:#94a3b8;}' +
