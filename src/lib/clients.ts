@@ -49,16 +49,75 @@ export type PublicClientConfig = Omit<ClientConfig, "assistantId">;
  *   3. Give the client their one-line embed snippet.
  */
 const clients: Record<string, ClientConfig> = {
-"abc-dental": {
-  assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-  businessName: "maria ai",
-  greeting: "hi maria",
-  quickReplies: [],
-  primaryColor: "#93a276",
-  avatarUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
-  footer: "andrew made this ",
-  themeMode: "dark",
-},
+  "xyz": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "XYZ",
+    greeting: "Hello! Welcome to XYZ. How can I help you today?",
+    quickReplies: [
+      "test",
+      "testt",
+      "testttt",
+      "testtttt",
+    ],
+    primaryColor: "#dc582a",
+  },
+  "xyz-2": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "XYZ-2",
+    greeting: "HI TESTING",
+    quickReplies: [
+      "TEST 1",
+      "TEST 2",
+    ],
+    primaryColor: "#9a532d",
+  },
+  "test-3": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "testing 3",
+    greeting: "Hello! this is a test",
+    quickReplies: [
+      "test1",
+      "test2",
+      "test3",
+    ],
+    primaryColor: "#dc582a",
+  },
+  "final-test": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "testing",
+    greeting: "Hello! testing!",
+    quickReplies: [
+      "1",
+      "2",
+      "3",
+    ],
+    primaryColor: "#00f03c",
+    avatarUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
+    description: "test ya",
+    messagePlaceholder: "hola",
+    footer: "and rew",
+    fontFamily: "Poppins",
+    themeMode: "dark",
+    headerStyle: "gradient",
+    buttonImageUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
+    proactiveMessage: "hola",
+    historyReset: "24h",
+  },
+  "abc-dental": {
+    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+    businessName: "maria ai",
+    greeting: "hi maria",
+    quickReplies: [],
+    primaryColor: "#93a276",
+    avatarUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
+    footer: "andrew made this",
+    themeMode: "dark",
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
+  // ─────────────────────────────────────────────────────────────────────────
+};
 
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
