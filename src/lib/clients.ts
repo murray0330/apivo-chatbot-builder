@@ -21,6 +21,12 @@ export interface ClientConfig {
   cornerRadius?: "sharp" | "round";
   customCss?: string;
 
+  // ── Icons ─────────────────────────────────────────────────────────────────
+  launcherIcon?: string;
+  headerIcon?: string;
+  botBubbleIcon?: string;
+  userBubbleIcon?: string;
+
   // ── Deploy ─────────────────────────────────────────────────────────────────
   chatInterface?: string;
   chatLauncher?: string;

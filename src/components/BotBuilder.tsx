@@ -12,6 +12,7 @@ type ChatLauncher = "bubble" | "text-bar";
 type HistoryReset = "never" | "on-close" | "24h";
 type FontFamily = "system" | "Inter" | "Poppins" | "Roboto";
 type HeaderStyle = "solid" | "gradient" | "minimal";
+type IconKey = "" | "chat" | "message" | "headset" | "bot" | "spark" | "zap" | "heart" | "star" | "globe" | "shield" | "smile" | "user";
 
 interface BotConfig {
   widgetId: string;
@@ -28,6 +29,10 @@ interface BotConfig {
   themeMode: ThemeMode;
   headerStyle: HeaderStyle;
   cornerRadius: CornerRadius;
+  launcherIcon: IconKey;
+  headerIcon: IconKey;
+  botBubbleIcon: IconKey;
+  userBubbleIcon: IconKey;
   customCss: string;
   deployedUrl: string;
   chatInterface: ChatInterface;
@@ -57,6 +62,10 @@ const DEFAULT_CONFIG: BotConfig = {
   themeMode: "light",
   headerStyle: "solid",
   cornerRadius: "round",
+  launcherIcon: "",
+  headerIcon: "",
+  botBubbleIcon: "",
+  userBubbleIcon: "",
   customCss: "",
   deployedUrl: "https://vapi-chatbot.vercel.app",
   chatInterface: "floating-widget",
@@ -188,6 +197,75 @@ function AvatarField({ label, sub, value, onChange }: { label: string; sub?: str
   );
 }
 
+// ─── Icon library ───────────────────────────────────────────────────────────
+
+const ICON_OPTIONS: { key: IconKey; label: string; paths: string }[] = [
+  { key: "", label: "None", paths: "" },
+  { key: "chat", label: "Chat Bubble", paths: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+  { key: "message", label: "Message", paths: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>' },
+  { key: "headset", label: "Headset", paths: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>' },
+  { key: "bot", label: "Robot", paths: '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>' },
+  { key: "spark", label: "Sparkle", paths: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>' },
+  { key: "zap", label: "Lightning", paths: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>' },
+  { key: "heart", label: "Heart", paths: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>' },
+  { key: "star", label: "Star", paths: '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z"/>' },
+  { key: "globe", label: "Globe", paths: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>' },
+  { key: "shield", label: "Shield", paths: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>' },
+  { key: "smile", label: "Smiley", paths: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>' },
+  { key: "user", label: "Person", paths: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+];
+
+function getIconPaths(key: IconKey): string {
+  return ICON_OPTIONS.find((i) => i.key === key)?.paths || "";
+}
+
+function SvgIcon({ paths, size = 20, className = "" }: { paths: string; size?: number; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      dangerouslySetInnerHTML={{ __html: paths }}
+    />
+  );
+}
+
+function IconPicker({ value, onChange, label, sub }: { value: IconKey; onChange: (v: IconKey) => void; label: string; sub?: string }) {
+  return (
+    <Field>
+      <Label sub={sub}>{label}</Label>
+      <div className="flex flex-wrap gap-1.5">
+        {ICON_OPTIONS.map((icon) => (
+          <button
+            key={icon.key}
+            type="button"
+            onClick={() => onChange(icon.key)}
+            title={icon.label}
+            className={`flex h-9 w-9 items-center justify-center rounded-lg border-2 transition-all duration-150 ${
+              value === icon.key
+                ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm scale-110"
+                : "border-gray-200 bg-gray-50/50 text-gray-500 hover:border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+            }`}
+          >
+            {icon.paths ? (
+              <SvgIcon paths={icon.paths} size={16} />
+            ) : (
+              <span className="text-[11px] font-medium text-gray-400">&#x2015;</span>
+            )}
+          </button>
+        ))}
+      </div>
+    </Field>
+  );
+}
+
 function ToggleRow({ label, sub, checked, onChange }: { label: string; sub?: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <div className="flex items-center justify-between py-3.5 border-b border-gray-100 last:border-0 last:pb-0 first:pt-0">
@@ -248,9 +326,13 @@ function LivePreview({ config }: { config: BotConfig }) {
             className="flex items-center gap-2.5 px-4 py-3"
             style={{ background: headerBg, color: headerColor, borderBottom: headerBorder }}
           >
-            {c.avatarUrl.startsWith("http") && (
+            {c.avatarUrl.startsWith("http") ? (
               <img src={c.avatarUrl} alt="" className="h-7 w-7 rounded-full border border-white/20 object-cover" />
-            )}
+            ) : c.headerIcon ? (
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20">
+                <SvgIcon paths={getIconPaths(c.headerIcon)} size={15} />
+              </div>
+            ) : null}
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-bold truncate">{c.displayName || "Chat"}</p>
               {c.description && <p className="text-[10px] opacity-70 truncate">{c.description}</p>}
@@ -264,6 +346,10 @@ function LivePreview({ config }: { config: BotConfig }) {
             <div className="flex items-end gap-2">
               {c.avatarUrl.startsWith("http") ? (
                 <img src={c.avatarUrl} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover" />
+              ) : c.botBubbleIcon ? (
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: c.primaryColor + "25" }}>
+                  <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={11} className={isDark ? "text-gray-300" : "text-gray-500"} />
+                </div>
               ) : (
                 <div className="h-5 w-5 shrink-0 rounded-full" style={{ background: c.primaryColor, opacity: 0.2 }} />
               )}
@@ -275,18 +361,27 @@ function LivePreview({ config }: { config: BotConfig }) {
               </div>
             </div>
             {/* User message */}
-            <div className="flex justify-end">
+            <div className="flex items-end justify-end gap-2">
               <div
                 className="max-w-[80%] px-3 py-2 text-white transition-all duration-200"
                 style={{ background: c.primaryColor, borderRadius: `${bubbleRad} ${bubbleRad} 4px ${bubbleRad}` }}
               >
                 Tell me more
               </div>
+              {c.userBubbleIcon && (
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: c.primaryColor + "25" }}>
+                  <SvgIcon paths={getIconPaths(c.userBubbleIcon)} size={11} className={isDark ? "text-gray-300" : "text-gray-500"} />
+                </div>
+              )}
             </div>
             {/* Bot response */}
             <div className="flex items-end gap-2">
               {c.avatarUrl.startsWith("http") ? (
                 <img src={c.avatarUrl} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover" />
+              ) : c.botBubbleIcon ? (
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: c.primaryColor + "25" }}>
+                  <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={11} className={isDark ? "text-gray-300" : "text-gray-500"} />
+                </div>
               ) : (
                 <div className="h-5 w-5 shrink-0 rounded-full" style={{ background: c.primaryColor, opacity: 0.2 }} />
               )}
@@ -349,7 +444,11 @@ function LivePreview({ config }: { config: BotConfig }) {
           className="absolute bottom-3 right-4 flex h-11 w-11 items-center justify-center rounded-full text-lg text-white shadow-lg transition-all duration-300"
           style={{ background: c.primaryColor }}
         >
-          💬
+          {c.launcherIcon ? (
+            <SvgIcon paths={getIconPaths(c.launcherIcon)} size={22} />
+          ) : (
+            <span>💬</span>
+          )}
         </div>
 
         {/* Proactive message */}
@@ -470,6 +569,12 @@ function TabAppearance({ config: c, set }: { config: BotConfig; set: Setter }) {
             options={[{ value: "sharp", label: "Sharp" }, { value: "round", label: "Rounded" }]}
           />
         </Field>
+      </Section>
+      <Section title="Icons">
+        <IconPicker label="Launcher Button" sub="Icon for the floating chat button" value={c.launcherIcon} onChange={(v) => set("launcherIcon", v)} />
+        <IconPicker label="Header / Banner" sub="Icon in the chat header (when no avatar URL)" value={c.headerIcon} onChange={(v) => set("headerIcon", v)} />
+        <IconPicker label="Bot Messages" sub="Small icon beside bot replies" value={c.botBubbleIcon} onChange={(v) => set("botBubbleIcon", v)} />
+        <IconPicker label="User Messages" sub="Small icon beside your messages" value={c.userBubbleIcon} onChange={(v) => set("userBubbleIcon", v)} />
       </Section>
       <Section title="Custom CSS">
         <Field>
@@ -618,6 +723,10 @@ function PublishModal({ config: c, onClose }: { config: BotConfig; onClose: () =
   if (c.themeMode !== "light") fields.push(["themeMode", c.themeMode]);
   if (c.headerStyle !== "solid") fields.push(["headerStyle", c.headerStyle]);
   if (c.cornerRadius !== "round") fields.push(["cornerRadius", c.cornerRadius]);
+  if (c.launcherIcon) fields.push(["launcherIcon", c.launcherIcon]);
+  if (c.headerIcon) fields.push(["headerIcon", c.headerIcon]);
+  if (c.botBubbleIcon) fields.push(["botBubbleIcon", c.botBubbleIcon]);
+  if (c.userBubbleIcon) fields.push(["userBubbleIcon", c.userBubbleIcon]);
   if (c.customCss) fields.push(["customCss", c.customCss]);
   if (c.chatInterface !== "floating-widget") fields.push(["chatInterface", c.chatInterface]);
   if (c.chatLauncher !== "bubble") fields.push(["chatLauncher", c.chatLauncher]);

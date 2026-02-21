@@ -66,8 +66,34 @@ function buildWidgetScript(): string {
     cornerRadius: 'round',
     customCss: '',
     buttonImageUrl: '',
-    proactiveMessage: ''
+    proactiveMessage: '',
+    launcherIcon: '',
+    headerIcon: '',
+    botBubbleIcon: '',
+    userBubbleIcon: ''
   };
+
+  // ── Icon SVG library ──────────────────────────────────────────────────────────
+  var ICON_PATHS = {
+    chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    message: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+    bot: '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+    spark: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
+    zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+    heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    star: '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z"/>',
+    globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>',
+    user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+  };
+
+  function getIconSvg(key, size) {
+    var paths = ICON_PATHS[key];
+    if (!paths) { return ''; }
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  }
 
   // ── Styles (base — updated dynamically after config loads) ─────────────────
   var styleEl = document.createElement('style');
@@ -140,7 +166,18 @@ function buildWidgetScript(): string {
       '#vapi-input:focus{border-color:#94a3b8;}' +
       '#vapi-send{border:none;border-radius:8px;padding:7px 14px;cursor:pointer;' +
         'color:#fff;font-size:13px;font-weight:600;}' +
-      '#vapi-send:disabled{opacity:.5;cursor:default;}';
+      '#vapi-send:disabled{opacity:.5;cursor:default;}' +
+      '.vm-row{display:flex;align-items:flex-end;gap:6px;}' +
+      '.vm-row-u{justify-content:flex-end;}' +
+      '.vm-row-b{justify-content:flex-start;}' +
+      '.vm-row .vm{align-self:auto;}' +
+      '.vm-bicon,.vm-uicon{width:22px;height:22px;border-radius:50%;' +
+        'display:flex;align-items:center;justify-content:center;flex-shrink:0;}' +
+      '.vm-bicon svg,.vm-uicon svg{stroke:' + (isDark ? '#aaa' : '#64748b') + ';}' +
+      '#vapi-header-icon{width:32px;height:32px;border-radius:50%;' +
+        'background:rgba(255,255,255,.2);display:flex;align-items:center;' +
+        'justify-content:center;flex-shrink:0;}' +
+      '#vapi-header-icon svg{stroke:#fff;}';
   }
 
   // ── DOM ──────────────────────────────────────────────────────────────────────
@@ -254,11 +291,40 @@ function buildWidgetScript(): string {
   }
 
   function addMsg(text, role) {
-    var el = document.createElement('div');
-    el.className = 'vm ' + (role === 'user' ? 'vm-u' : 'vm-b');
-    if (role === 'user') { el.style.backgroundColor = cfg.primaryColor; }
-    el.textContent = text;
-    msgsEl.appendChild(el);
+    var isUser = role === 'user';
+    var iconKey = isUser ? cfg.userBubbleIcon : cfg.botBubbleIcon;
+
+    var bubble = document.createElement('div');
+    bubble.className = 'vm ' + (isUser ? 'vm-u' : 'vm-b');
+    if (isUser) { bubble.style.backgroundColor = cfg.primaryColor; }
+    bubble.textContent = text;
+
+    if (iconKey) {
+      var row = document.createElement('div');
+      row.className = 'vm-row' + (isUser ? ' vm-row-u' : ' vm-row-b');
+
+      if (!isUser) {
+        var bIcon = document.createElement('div');
+        bIcon.className = 'vm-bicon';
+        bIcon.style.backgroundColor = cfg.primaryColor + '20';
+        bIcon.innerHTML = getIconSvg(iconKey, 13);
+        row.appendChild(bIcon);
+      }
+
+      row.appendChild(bubble);
+
+      if (isUser) {
+        var uIcon = document.createElement('div');
+        uIcon.className = 'vm-uicon';
+        uIcon.style.backgroundColor = cfg.primaryColor + '20';
+        uIcon.innerHTML = getIconSvg(iconKey, 13);
+        row.appendChild(uIcon);
+      }
+
+      msgsEl.appendChild(row);
+    } else {
+      msgsEl.appendChild(bubble);
+    }
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
@@ -428,6 +494,11 @@ function buildWidgetScript(): string {
       if (data.customCss)          { cfg.customCss = data.customCss; }
       if (data.buttonImageUrl)     { cfg.buttonImageUrl = data.buttonImageUrl; }
       if (data.proactiveMessage)   { cfg.proactiveMessage = data.proactiveMessage; }
+      // Icon fields
+      if (data.launcherIcon)       { cfg.launcherIcon = data.launcherIcon; }
+      if (data.headerIcon)         { cfg.headerIcon = data.headerIcon; }
+      if (data.botBubbleIcon)      { cfg.botBubbleIcon = data.botBubbleIcon; }
+      if (data.userBubbleIcon)     { cfg.userBubbleIcon = data.userBubbleIcon; }
     }
 
     // Load custom font if specified
@@ -448,10 +519,15 @@ function buildWidgetScript(): string {
       descEl.style.display = 'block';
     }
 
-    // Avatar in header
+    // Avatar or icon in header
     if (cfg.avatarUrl) {
       avatarEl.src = cfg.avatarUrl;
       avatarEl.style.display = 'block';
+    } else if (cfg.headerIcon) {
+      var headerIconEl = document.createElement('div');
+      headerIconEl.id = 'vapi-header-icon';
+      headerIconEl.innerHTML = getIconSvg(cfg.headerIcon, 18);
+      header.insertBefore(headerIconEl, headerTextWrap);
     }
 
     // Placeholder text
@@ -465,13 +541,15 @@ function buildWidgetScript(): string {
       footerEl.style.display = 'block';
     }
 
-    // Launcher button image
+    // Launcher button image or icon
     if (cfg.buttonImageUrl) {
       btn.innerHTML = '';
       var btnImg = document.createElement('img');
       btnImg.src = cfg.buttonImageUrl;
       btnImg.alt = 'Chat';
       btn.appendChild(btnImg);
+    } else if (cfg.launcherIcon) {
+      btn.innerHTML = getIconSvg(cfg.launcherIcon, 26);
     }
 
     // Inject custom CSS
