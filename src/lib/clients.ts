@@ -139,6 +139,7 @@ const clients: Record<string, ClientConfig> = {
   botBubbleIcon: "bot",
   userBubbleIcon: "user",
   proactiveMessage: "hi need help",
+    glassEffect: true,
 },
   
   // ─────────────────────────────────────────────────────────────────────────
