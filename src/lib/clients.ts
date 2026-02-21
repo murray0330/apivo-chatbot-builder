@@ -49,18 +49,7 @@ export type PublicClientConfig = Omit<ClientConfig, "assistantId">;
  *   3. Give the client their one-line embed snippet.
  */
 const clients: Record<string, ClientConfig> = {
-  "xyz": {
-    assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-    businessName: "XYZ",
-    greeting: "Hello! Welcome to XYZ. How can I help you today?",
-    quickReplies: [
-      "test",
-      "testt",
-      "testttt",
-      "testtttt",
-    ],
-    primaryColor: "#dc582a",
-  },
+"abc-dental": {
   assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
   businessName: "maria ai",
   greeting: "hi maria",
@@ -70,7 +59,6 @@ const clients: Record<string, ClientConfig> = {
   footer: "andrew made this ",
   themeMode: "dark",
 },
-  }
 
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
