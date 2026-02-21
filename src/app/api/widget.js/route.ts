@@ -332,7 +332,8 @@ function buildWidgetScript(): string {
   function addMsg(text, role) {
     var isUser = role === 'user';
     var iconKey = isUser ? cfg.userBubbleIcon : cfg.botBubbleIcon;
-    var showAvatar = !isUser && cfg.avatarUrl;
+    // Show avatar in bot messages only when no botBubbleIcon is explicitly chosen
+    var showAvatar = !isUser && cfg.avatarUrl && !cfg.botBubbleIcon;
 
     var bubble = document.createElement('div');
     bubble.className = 'vm ' + (isUser ? 'vm-u' : 'vm-b');

@@ -330,12 +330,14 @@ function LivePreview({ config }: { config: BotConfig }) {
   const botAvatar = c.avatarUrl.startsWith("http");
 
   function BotIcon({ size }: { size: number }) {
-    if (botAvatar) return <img src={c.avatarUrl} alt="" style={{ width: size, height: size }} className="shrink-0 rounded-full object-cover" />;
+    // Bot bubble icon takes priority — it's independent of the header avatar
     if (c.botBubbleIcon) return (
       <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: size, height: size, background: c.primaryColor + "25" }}>
         <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={size * 0.6} className={isDark ? "text-gray-300" : "text-gray-500"} />
       </div>
     );
+    // Fall back to avatar image if no specific bot icon is chosen
+    if (botAvatar) return <img src={c.avatarUrl} alt="" style={{ width: size, height: size }} className="shrink-0 rounded-full object-cover" />;
     return <div className="shrink-0 rounded-full" style={{ width: size, height: size, background: c.primaryColor, opacity: 0.2 }} />;
   }
 
