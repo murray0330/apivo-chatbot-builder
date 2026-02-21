@@ -70,6 +70,7 @@ const clients: Record<string, ClientConfig> = {
   footer: "andrew made this ",
   themeMode: "dark",
 },
+  }
 
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
