@@ -838,6 +838,8 @@ function PublishModal({ config: c, onClose }: { config: BotConfig; onClose: () =
     ["assistantId", c.assistantId], ["businessName", c.displayName], ["greeting", c.greeting],
     ["quickReplies", qr], ["primaryColor", c.primaryColor],
   ];
+  // Appearance flags — always emit glassEffect when it's on so it's never accidentally missing
+  if (c.glassEffect) fields.push(["glassEffect", true]);
   if (c.avatarUrl) fields.push(["avatarUrl", c.avatarUrl]);
   if (c.description) fields.push(["description", c.description]);
   if (c.messagePlaceholder && c.messagePlaceholder !== "Type your message...") fields.push(["messagePlaceholder", c.messagePlaceholder]);
@@ -856,7 +858,6 @@ function PublishModal({ config: c, onClose }: { config: BotConfig; onClose: () =
   if (c.useAvatarForButton) fields.push(["useAvatarForButton", c.useAvatarForButton]);
   if (c.buttonImageUrl) fields.push(["buttonImageUrl", c.buttonImageUrl]);
   if (c.proactiveMessage) fields.push(["proactiveMessage", c.proactiveMessage]);
-  if (c.glassEffect) fields.push(["glassEffect", true]);
   if (c.messageFeedback) fields.push(["messageFeedback", true]);
   if (c.allowFileUpload) fields.push(["allowFileUpload", true]);
   if (c.notificationSound) fields.push(["notificationSound", true]);
