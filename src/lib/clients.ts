@@ -127,7 +127,6 @@ const clients: Record<string, ClientConfig> = {
   greeting: "Hello! How can I help you today?",
   quickReplies: [],
   primaryColor: "#2563eb",
-  glassEffect: true,
 },
   
   // ─────────────────────────────────────────────────────────────────────────
