@@ -123,23 +123,11 @@ const clients: Record<string, ClientConfig> = {
 
 "feb-21": {
   assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-  businessName: "dd",
+  businessName: "",
   greeting: "Hello! How can I help you today?",
-  quickReplies: [
-      "1",
-      "2",
-      "3",
-    ],
-  primaryColor: "#c91818",
-  description: "ai asistatn",
-  footer: "andrew murray",
-  fontFamily: "Roboto",
-  launcherIcon: "message",
-  headerIcon: "smile",
-  botBubbleIcon: "bot",
-  userBubbleIcon: "user",
-  proactiveMessage: "hi need help",
-    glassEffect: true,
+  quickReplies: [],
+  primaryColor: "#2563eb",
+  glassEffect: true,
 },
   
   // ─────────────────────────────────────────────────────────────────────────
