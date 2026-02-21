@@ -121,6 +121,26 @@ const clients: Record<string, ClientConfig> = {
     themeMode: "dark",
   },
 
+"feb-21": {
+  assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+  businessName: "dd",
+  greeting: "Hello! How can I help you today?",
+  quickReplies: [
+      "1",
+      "2",
+      "3",
+    ],
+  primaryColor: "#c91818",
+  description: "ai asistatn",
+  footer: "andrew murray",
+  fontFamily: "Roboto",
+  launcherIcon: "message",
+  headerIcon: "smile",
+  botBubbleIcon: "bot",
+  userBubbleIcon: "user",
+  proactiveMessage: "hi need help",
+},
+  
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
   // ─────────────────────────────────────────────────────────────────────────
