@@ -302,96 +302,84 @@ function LivePreview({ config }: { config: BotConfig }) {
   const inputBorder = isDark ? "#333" : "#e2e8f0";
   const footerColor = isDark ? "#666" : "#94a3b8";
 
+  const botAvatar = c.avatarUrl.startsWith("http");
+
+  function BotIcon({ size }: { size: number }) {
+    if (botAvatar) return <img src={c.avatarUrl} alt="" style={{ width: size, height: size }} className="shrink-0 rounded-full object-cover" />;
+    if (c.botBubbleIcon) return (
+      <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: size, height: size, background: c.primaryColor + "25" }}>
+        <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={size * 0.6} className={isDark ? "text-gray-300" : "text-gray-500"} />
+      </div>
+    );
+    return <div className="shrink-0 rounded-full" style={{ width: size, height: size, background: c.primaryColor, opacity: 0.2 }} />;
+  }
+
   return (
     <div className="flex flex-col items-center">
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">Live Preview</p>
-      {/* Simulated page background */}
-      <div className="relative w-[320px] rounded-2xl border border-gray-200 bg-gray-100 p-4 shadow-inner" style={{ minHeight: 480 }}>
-        {/* Fake page content lines */}
-        <div className="mb-2 h-3 w-24 rounded bg-gray-300/50" />
-        <div className="mb-1.5 h-2 w-full rounded bg-gray-200/70" />
-        <div className="mb-1.5 h-2 w-3/4 rounded bg-gray-200/70" />
-        <div className="mb-1.5 h-2 w-5/6 rounded bg-gray-200/70" />
-        <div className="mb-4 h-2 w-2/3 rounded bg-gray-200/70" />
-        <div className="mb-1.5 h-2 w-full rounded bg-gray-200/70" />
-        <div className="mb-1.5 h-2 w-4/5 rounded bg-gray-200/70" />
 
-        {/* Widget mockup */}
+      {/* Wrapper positions the launcher bubble relative to the panel */}
+      <div className="relative">
+        {/* Chat panel — exact real-world size: 370 × 560 */}
         <div
-          className="absolute bottom-14 right-4 left-4 flex flex-col overflow-hidden shadow-2xl transition-all duration-300"
-          style={{ borderRadius: rad, background: panelBg, color: panelText }}
+          className="flex flex-col overflow-hidden shadow-2xl transition-all duration-300"
+          style={{ width: 370, height: 560, borderRadius: rad, background: panelBg, color: panelText, fontSize: 14 }}
         >
           {/* Header */}
           <div
-            className="flex items-center gap-2.5 px-4 py-3"
+            className="flex shrink-0 items-center gap-2.5 px-4 py-3.5"
             style={{ background: headerBg, color: headerColor, borderBottom: headerBorder }}
           >
-            {c.avatarUrl.startsWith("http") ? (
-              <img src={c.avatarUrl} alt="" className="h-7 w-7 rounded-full border border-white/20 object-cover" />
+            {botAvatar ? (
+              <img src={c.avatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full border border-white/20 object-cover" />
             ) : c.headerIcon ? (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20">
-                <SvgIcon paths={getIconPaths(c.headerIcon)} size={15} />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
+                <SvgIcon paths={getIconPaths(c.headerIcon)} size={17} />
               </div>
             ) : null}
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-bold truncate">{c.displayName || "Chat"}</p>
-              {c.description && <p className="text-[10px] opacity-70 truncate">{c.description}</p>}
+              <p className="text-[15px] font-semibold leading-tight truncate">{c.displayName || "Chat"}</p>
+              {c.description && <p className="text-[11px] opacity-75 truncate mt-0.5">{c.description}</p>}
             </div>
-            <span className="text-base opacity-60 cursor-default">×</span>
+            <span className="text-xl opacity-60 cursor-default leading-none">×</span>
           </div>
 
-          {/* Messages */}
-          <div className="flex flex-col gap-2.5 px-3 py-3" style={{ fontSize: 12, lineHeight: 1.5 }}>
+          {/* Messages — flex-1 so they fill the space */}
+          <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-3.5 py-3.5" style={{ lineHeight: 1.45 }}>
             {/* Bot greeting */}
             <div className="flex items-end gap-2">
-              {c.avatarUrl.startsWith("http") ? (
-                <img src={c.avatarUrl} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover" />
-              ) : c.botBubbleIcon ? (
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: c.primaryColor + "25" }}>
-                  <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={11} className={isDark ? "text-gray-300" : "text-gray-500"} />
-                </div>
-              ) : (
-                <div className="h-5 w-5 shrink-0 rounded-full" style={{ background: c.primaryColor, opacity: 0.2 }} />
-              )}
+              <BotIcon size={26} />
               <div
-                className="max-w-[80%] px-3 py-2 transition-all duration-200"
+                className="max-w-[78%] px-3.5 py-2.5"
                 style={{ background: botBubbleBg, borderRadius: `${bubbleRad} ${bubbleRad} ${bubbleRad} 4px` }}
               >
-                {c.greeting || "Hello!"}
+                {c.greeting || "Hello! How can I help you?"}
               </div>
             </div>
             {/* User message */}
             <div className="flex items-end justify-end gap-2">
               <div
-                className="max-w-[80%] px-3 py-2 text-white transition-all duration-200"
+                className="max-w-[78%] px-3.5 py-2.5 text-white"
                 style={{ background: c.primaryColor, borderRadius: `${bubbleRad} ${bubbleRad} 4px ${bubbleRad}` }}
               >
                 Tell me more
               </div>
               {c.userBubbleIcon && (
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: c.primaryColor + "25" }}>
-                  <SvgIcon paths={getIconPaths(c.userBubbleIcon)} size={11} className={isDark ? "text-gray-300" : "text-gray-500"} />
+                <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: 26, height: 26, background: c.primaryColor + "25" }}>
+                  <SvgIcon paths={getIconPaths(c.userBubbleIcon)} size={14} className={isDark ? "text-gray-300" : "text-gray-500"} />
                 </div>
               )}
             </div>
             {/* Bot response */}
             <div className="flex items-end gap-2">
-              {c.avatarUrl.startsWith("http") ? (
-                <img src={c.avatarUrl} alt="" className="h-5 w-5 shrink-0 rounded-full object-cover" />
-              ) : c.botBubbleIcon ? (
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: c.primaryColor + "25" }}>
-                  <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={11} className={isDark ? "text-gray-300" : "text-gray-500"} />
-                </div>
-              ) : (
-                <div className="h-5 w-5 shrink-0 rounded-full" style={{ background: c.primaryColor, opacity: 0.2 }} />
-              )}
+              <BotIcon size={26} />
               <div
-                className="max-w-[80%] px-3 py-2 transition-all duration-200"
+                className="max-w-[78%] px-3.5 py-2.5"
                 style={{ background: botBubbleBg, borderRadius: `${bubbleRad} ${bubbleRad} ${bubbleRad} 4px` }}
               >
                 I&apos;d be happy to help! What would you like to know?
                 {c.messageFeedback && (
-                  <div className="mt-1.5 flex gap-2 text-[10px] opacity-50">
+                  <div className="mt-2 flex gap-2 text-[11px] opacity-50">
                     <span className="cursor-default">👍</span>
                     <span className="cursor-default">👎</span>
                   </div>
@@ -402,11 +390,11 @@ function LivePreview({ config }: { config: BotConfig }) {
 
           {/* Quick replies */}
           {quickReplies.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 px-3 pb-2">
+            <div className="flex shrink-0 flex-wrap gap-1.5 border-t px-3.5 py-2" style={{ borderColor: inputBorder }}>
               {quickReplies.map((r) => (
                 <span
                   key={r}
-                  className="inline-block cursor-default rounded-full px-2.5 py-1 text-[10px] font-medium transition-all"
+                  className="inline-block cursor-default rounded-full px-3 py-1 text-[12px] font-medium"
                   style={{ background: isDark ? "#333" : "#f1f5f9", color: isDark ? "#ccc" : "#475569" }}
                 >
                   {r}
@@ -415,50 +403,48 @@ function LivePreview({ config }: { config: BotConfig }) {
             </div>
           )}
 
-          {/* Input */}
-          <div className="flex items-center gap-2 border-t px-3 py-2.5" style={{ borderColor: inputBorder }}>
+          {/* Input bar */}
+          <div className="flex shrink-0 items-center gap-2 border-t px-3 py-2.5" style={{ borderColor: inputBorder }}>
             <div
-              className="h-8 flex-1 rounded-lg px-2.5 flex items-center text-[11px]"
-              style={{ background: inputBg, color: footerColor }}
+              className="h-9 flex-1 rounded-lg px-3 flex items-center text-[13px]"
+              style={{ background: inputBg, color: footerColor, border: `1px solid ${inputBorder}` }}
             >
-              {c.messagePlaceholder || "Type a message..."}
+              {c.messagePlaceholder || "Type a message…"}
             </div>
             <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] text-white font-bold"
+              className="flex h-9 w-[60px] shrink-0 items-center justify-center rounded-lg text-[13px] font-semibold text-white"
               style={{ background: c.primaryColor }}
             >
-              ▶
+              Send
             </div>
           </div>
 
           {/* Footer */}
           {c.footer && (
-            <div className="border-t px-3 py-1.5 text-center text-[9px]" style={{ borderColor: inputBorder, color: footerColor }}>
+            <div className="shrink-0 border-t px-3 py-1.5 text-center text-[11px]" style={{ borderColor: inputBorder, color: footerColor }}>
               {c.footer}
             </div>
           )}
         </div>
 
-        {/* Floating bubble */}
-        <div
-          className="absolute bottom-3 right-4 flex h-11 w-11 items-center justify-center rounded-full text-lg text-white shadow-lg transition-all duration-300"
-          style={{ background: c.primaryColor }}
-        >
-          {c.launcherIcon ? (
-            <SvgIcon paths={getIconPaths(c.launcherIcon)} size={22} />
-          ) : (
-            <span>💬</span>
+        {/* Launcher bubble — sits at bottom-right corner like in production */}
+        <div className="absolute -bottom-5 -right-5 flex flex-col items-end gap-2">
+          {c.proactiveMessage && (
+            <div className="mb-1 max-w-[200px] rounded-2xl rounded-br-sm border border-gray-200 bg-white px-3 py-2 text-center text-[12px] shadow-lg" style={{ color: "#334155" }}>
+              {c.proactiveMessage}
+            </div>
           )}
-        </div>
-
-        {/* Proactive message */}
-        {c.proactiveMessage && (
           <div
-            className="absolute bottom-16 right-4 max-w-[180px] rounded-2xl rounded-br-sm border border-gray-200 bg-white px-3 py-2 text-center text-[11px] shadow-lg"
+            className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+            style={{ background: c.primaryColor }}
           >
-            {c.proactiveMessage}
+            {c.launcherIcon ? (
+              <SvgIcon paths={getIconPaths(c.launcherIcon)} size={26} />
+            ) : (
+              <span className="text-2xl">💬</span>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
