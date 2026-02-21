@@ -35,6 +35,7 @@ export interface ClientConfig {
   proactiveMessage?: string;
 
   // ── Features ───────────────────────────────────────────────────────────────
+  glassEffect?: boolean;
   messageFeedback?: boolean;
   allowFileUpload?: boolean;
   notificationSound?: boolean;

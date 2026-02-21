@@ -70,7 +70,8 @@ function buildWidgetScript(): string {
     launcherIcon: '',
     headerIcon: '',
     botBubbleIcon: '',
-    userBubbleIcon: ''
+    userBubbleIcon: '',
+    glassEffect: false
   };
 
   // ── Icon SVG library ──────────────────────────────────────────────────────────
@@ -101,37 +102,62 @@ function buildWidgetScript(): string {
 
   function buildStyles() {
     var isDark = cfg.themeMode === 'dark';
-    var bgColor = isDark ? '#1e1e1e' : '#fff';
+    var isGlass = cfg.glassEffect;
+    var bgColor = isGlass
+      ? (isDark ? 'rgba(20,20,30,0.45)' : 'rgba(255,255,255,0.25)')
+      : (isDark ? '#1e1e1e' : '#fff');
     var textColor = isDark ? '#e2e8f0' : '#1e293b';
-    var borderColor = isDark ? '#333' : '#f1f5f9';
-    var inputBg = isDark ? '#2a2a2a' : '#fff';
-    var inputBorder = isDark ? '#444' : '#e2e8f0';
-    var botMsgBg = isDark ? '#2a2a2a' : '#f1f5f9';
-    var qrBg = isDark ? '#333' : '#f1f5f9';
-    var qrHoverBg = isDark ? '#444' : '#e2e8f0';
+    var borderColor = isGlass
+      ? 'rgba(255,255,255,0.15)'
+      : (isDark ? '#333' : '#f1f5f9');
+    var inputBg = isGlass
+      ? (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.45)')
+      : (isDark ? '#2a2a2a' : '#fff');
+    var inputBorder = isGlass
+      ? (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.6)')
+      : (isDark ? '#444' : '#e2e8f0');
+    var botMsgBg = isGlass
+      ? (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.55)')
+      : (isDark ? '#2a2a2a' : '#f1f5f9');
+    var qrBg = isGlass
+      ? (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.4)')
+      : (isDark ? '#333' : '#f1f5f9');
+    var qrHoverBg = isGlass
+      ? (isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.65)')
+      : (isDark ? '#444' : '#e2e8f0');
     var bRadius = cfg.cornerRadius === 'sharp' ? '4px' : '12px';
     var panelRadius = cfg.cornerRadius === 'sharp' ? '8px' : '16px';
     var font = cfg.fontFamily
       ? cfg.fontFamily + ',system-ui,-apple-system,sans-serif'
       : 'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+    var glassPanel = isGlass
+      ? 'backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);' +
+        'border:1px solid ' + (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.6)') + ';' +
+        'box-shadow:0 8px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.4);'
+      : 'box-shadow:0 8px 32px rgba(0,0,0,.18);';
+    var glassBtn = isGlass
+      ? 'backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);' +
+        'border:1px solid rgba(255,255,255,0.4);' +
+        'box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4);'
+      : 'box-shadow:0 4px 16px rgba(0,0,0,.25);';
 
     styleEl.textContent =
       '#vapi-btn{position:fixed;bottom:24px;right:24px;z-index:2147483646;' +
         'width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;' +
         'display:flex;align-items:center;justify-content:center;' +
-        'box-shadow:0 4px 16px rgba(0,0,0,.25);transition:transform .15s;' +
+        glassBtn + 'transition:transform .15s;' +
         'font-size:26px;color:#fff;overflow:hidden;}' +
       '#vapi-btn:hover{transform:scale(1.08);}' +
       '#vapi-btn img{width:100%;height:100%;object-fit:cover;}' +
       '#vapi-proactive{position:fixed;bottom:88px;right:24px;z-index:2147483645;' +
-        'background:' + bgColor + ';color:' + textColor + ';padding:10px 14px;' +
-        'border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.15);' +
+        'background:' + (isGlass ? 'rgba(255,255,255,0.25)' : bgColor) + ';color:' + textColor + ';padding:10px 14px;' +
+        'border-radius:12px;' + (isGlass ? 'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.4);' : 'box-shadow:0 4px 16px rgba(0,0,0,.15);') +
         'font-family:' + font + ';font-size:13px;max-width:220px;' +
         'cursor:pointer;transition:opacity .2s;}' +
       '#vapi-proactive:hover{opacity:.85;}' +
       '#vapi-panel{position:fixed;bottom:92px;right:24px;z-index:2147483646;' +
         'width:370px;height:560px;max-height:calc(100vh - 108px);background:' + bgColor + ';border-radius:' + panelRadius + ';' +
-        'box-shadow:0 8px 32px rgba(0,0,0,.18);' +
+        glassPanel +
         'display:flex;flex-direction:column;overflow:hidden;' +
         'font-family:' + font + ';font-size:14px;color:' + textColor + ';}' +
       '#vapi-panel.vapi-hidden{display:none;}' +
@@ -266,12 +292,25 @@ function buildWidgetScript(): string {
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   function applyColor(color) {
-    btn.style.backgroundColor = color;
-    sendBtn.style.backgroundColor = color;
+    if (cfg.glassEffect) {
+      // Glass mode: tinted semi-transparent button
+      btn.style.backgroundColor = color + 'aa';
+      btn.style.backdropFilter = 'blur(16px) saturate(180%)';
+      btn.style.webkitBackdropFilter = 'blur(16px) saturate(180%)';
+      sendBtn.style.backgroundColor = color + 'bb';
+    } else {
+      btn.style.backgroundColor = color;
+      sendBtn.style.backgroundColor = color;
+    }
 
     // Header style
     var style = cfg.headerStyle || 'solid';
-    if (style === 'gradient') {
+    if (cfg.glassEffect) {
+      header.style.background = color + '88';
+      header.style.backdropFilter = 'blur(8px)';
+      header.style.webkitBackdropFilter = 'blur(8px)';
+      header.style.borderBottom = '1px solid rgba(255,255,255,0.2)';
+    } else if (style === 'gradient') {
       header.style.background = 'linear-gradient(135deg, ' + color + ', ' + shadeColor(color, -30) + ')';
     } else if (style === 'minimal') {
       header.style.background = 'transparent';
@@ -499,6 +538,7 @@ function buildWidgetScript(): string {
       if (data.headerIcon)         { cfg.headerIcon = data.headerIcon; }
       if (data.botBubbleIcon)      { cfg.botBubbleIcon = data.botBubbleIcon; }
       if (data.userBubbleIcon)     { cfg.userBubbleIcon = data.userBubbleIcon; }
+      if (data.glassEffect)        { cfg.glassEffect = data.glassEffect; }
     }
 
     // Load custom font if specified

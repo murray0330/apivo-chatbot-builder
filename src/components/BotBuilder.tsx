@@ -12,6 +12,7 @@ type ChatLauncher = "bubble" | "text-bar";
 type HistoryReset = "never" | "on-close" | "24h";
 type FontFamily = "system" | "Inter" | "Poppins" | "Roboto";
 type HeaderStyle = "solid" | "gradient" | "minimal";
+type GlassEffect = false | true;
 type IconKey = "" | "chat" | "message" | "headset" | "bot" | "spark" | "zap" | "heart" | "star" | "globe" | "shield" | "smile" | "user";
 
 interface BotConfig {
@@ -40,6 +41,7 @@ interface BotConfig {
   useAvatarForButton: boolean;
   buttonImageUrl: string;
   proactiveMessage: string;
+  glassEffect: boolean;
   messageFeedback: boolean;
   allowFileUpload: boolean;
   notificationSound: boolean;
@@ -73,6 +75,7 @@ const DEFAULT_CONFIG: BotConfig = {
   useAvatarForButton: false,
   buttonImageUrl: "",
   proactiveMessage: "",
+  glassEffect: false,
   messageFeedback: false,
   allowFileUpload: false,
   notificationSound: false,
@@ -295,12 +298,34 @@ function LivePreview({ config }: { config: BotConfig }) {
   const headerColor = c.headerStyle === "minimal" ? (isDark ? "#fff" : "#111") : "#fff";
   const headerBorder = c.headerStyle === "minimal" ? (isDark ? "1px solid #333" : "1px solid #e5e5e5") : "none";
 
-  const panelBg = isDark ? "#1a1a1a" : "#ffffff";
-  const panelText = isDark ? "#e5e5e5" : "#1e293b";
-  const botBubbleBg = isDark ? "#2a2a2a" : "#f1f5f9";
-  const inputBg = isDark ? "#2a2a2a" : "#f8fafc";
-  const inputBorder = isDark ? "#333" : "#e2e8f0";
+  const isGlass = c.glassEffect;
+  const panelBg = isGlass
+    ? (isDark ? "rgba(20,20,30,0.45)" : "rgba(255,255,255,0.25)")
+    : (isDark ? "#1a1a1a" : "#ffffff");
+  const panelBorder = isGlass
+    ? (isDark ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.6)")
+    : undefined;
+  const panelShadow = isGlass
+    ? "0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4)"
+    : undefined;
+  const panelBackdrop = isGlass ? "blur(28px) saturate(200%)" : undefined;
+  const panelText = isDark ? "#e5e5e5" : (isGlass ? "#1a1a2e" : "#1e293b");
+  const botBubbleBg = isGlass
+    ? (isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.55)")
+    : (isDark ? "#2a2a2a" : "#f1f5f9");
+  const inputBg = isGlass
+    ? (isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.45)")
+    : (isDark ? "#2a2a2a" : "#f8fafc");
+  const inputBorder = isGlass
+    ? (isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.6)")
+    : (isDark ? "#333" : "#e2e8f0");
   const footerColor = isDark ? "#666" : "#94a3b8";
+  // Glass header uses tinted frosted overlay instead of solid colour
+  const glassHeaderBg = isGlass
+    ? (isDark
+      ? `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.55)`
+      : `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.45)`)
+    : undefined;
 
   const botAvatar = c.avatarUrl.startsWith("http");
 
@@ -319,16 +344,44 @@ function LivePreview({ config }: { config: BotConfig }) {
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">Live Preview</p>
 
       {/* Wrapper: panel stacked above launcher bubble */}
-      <div className="flex flex-col items-end" style={{ width: 370 }}>
+      {/* When glass is on, show a vivid gradient background so the blur is visible */}
+      <div
+        className="flex flex-col items-end transition-all duration-300"
+        style={{
+          width: isGlass ? 410 : 370,
+          padding: isGlass ? "20px 20px 20px 20px" : 0,
+          borderRadius: isGlass ? "24px" : 0,
+          background: isGlass
+            ? (isDark
+              ? "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%)"
+              : "linear-gradient(135deg, #667eea 0%, #764ba2 40%, #f093fb 70%, #f5576c 100%)")
+            : "transparent",
+        }}
+      >
         {/* Chat panel — exact real-world size: 370 × 560 */}
         <div
-          className="flex flex-col overflow-hidden shadow-2xl transition-all duration-300"
-          style={{ width: 370, height: 560, borderRadius: rad, background: panelBg, color: panelText, fontSize: 14 }}
+          className="flex flex-col overflow-hidden transition-all duration-300"
+          style={{
+            width: 370, height: 560, borderRadius: rad,
+            background: panelBg,
+            color: panelText,
+            fontSize: 14,
+            border: panelBorder,
+            boxShadow: panelShadow ?? "0 8px 32px rgba(0,0,0,0.18)",
+            backdropFilter: panelBackdrop,
+            WebkitBackdropFilter: panelBackdrop,
+          }}
         >
           {/* Header */}
           <div
             className="flex shrink-0 items-center gap-2.5 px-4 py-3.5"
-            style={{ background: headerBg, color: headerColor, borderBottom: headerBorder }}
+            style={{
+              background: isGlass ? (glassHeaderBg ?? headerBg) : headerBg,
+              backdropFilter: isGlass ? "blur(8px)" : undefined,
+              WebkitBackdropFilter: isGlass ? "blur(8px)" : undefined,
+              color: headerColor,
+              borderBottom: isGlass ? "1px solid rgba(255,255,255,0.2)" : headerBorder,
+            }}
           >
             {botAvatar ? (
               <img src={c.avatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full border border-white/20 object-cover" />
@@ -404,16 +457,35 @@ function LivePreview({ config }: { config: BotConfig }) {
           )}
 
           {/* Input bar */}
-          <div className="flex shrink-0 items-center gap-2 border-t px-3 py-2.5" style={{ borderColor: inputBorder }}>
+          <div
+            className="flex shrink-0 items-center gap-2 border-t px-3 py-2.5"
+            style={{
+              borderColor: isGlass ? "rgba(255,255,255,0.15)" : inputBorder,
+              background: isGlass ? "rgba(255,255,255,0.05)" : undefined,
+            }}
+          >
             <div
               className="h-9 flex-1 rounded-lg px-3 flex items-center text-[13px]"
-              style={{ background: inputBg, color: footerColor, border: `1px solid ${inputBorder}` }}
+              style={{
+                background: inputBg,
+                color: footerColor,
+                border: `1px solid ${inputBorder}`,
+                backdropFilter: isGlass ? "blur(8px)" : undefined,
+                WebkitBackdropFilter: isGlass ? "blur(8px)" : undefined,
+              }}
             >
               {c.messagePlaceholder || "Type a message…"}
             </div>
             <div
               className="flex h-9 w-[60px] shrink-0 items-center justify-center rounded-lg text-[13px] font-semibold text-white"
-              style={{ background: c.primaryColor }}
+              style={{
+                background: isGlass
+                  ? `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.75)`
+                  : c.primaryColor,
+                backdropFilter: isGlass ? "blur(8px)" : undefined,
+                WebkitBackdropFilter: isGlass ? "blur(8px)" : undefined,
+                border: isGlass ? "1px solid rgba(255,255,255,0.3)" : undefined,
+              }}
             >
               Send
             </div>
@@ -421,7 +493,7 @@ function LivePreview({ config }: { config: BotConfig }) {
 
           {/* Footer */}
           {c.footer && (
-            <div className="shrink-0 border-t px-3 py-1.5 text-center text-[11px]" style={{ borderColor: inputBorder, color: footerColor }}>
+            <div className="shrink-0 border-t px-3 py-1.5 text-center text-[11px]" style={{ borderColor: isGlass ? "rgba(255,255,255,0.12)" : inputBorder, color: footerColor }}>
               {c.footer}
             </div>
           )}
@@ -430,13 +502,32 @@ function LivePreview({ config }: { config: BotConfig }) {
         {/* Launcher bubble — below the panel, right-aligned */}
         <div className="mt-3 flex flex-col items-end gap-2">
           {c.proactiveMessage && (
-            <div className="mb-1 max-w-[200px] rounded-2xl rounded-br-sm border border-gray-200 bg-white px-3 py-2 text-center text-[12px] shadow-lg" style={{ color: "#334155" }}>
+            <div
+              className="mb-1 max-w-[200px] rounded-2xl rounded-br-sm px-3 py-2 text-center text-[12px] shadow-lg"
+              style={{
+                background: isGlass ? "rgba(255,255,255,0.25)" : "#fff",
+                border: isGlass ? "1px solid rgba(255,255,255,0.4)" : "1px solid #e5e7eb",
+                backdropFilter: isGlass ? "blur(12px)" : undefined,
+                WebkitBackdropFilter: isGlass ? "blur(12px)" : undefined,
+                color: isGlass ? (isDark ? "#e2e8f0" : "#1a1a2e") : "#334155",
+              }}
+            >
               {c.proactiveMessage}
             </div>
           )}
           <div
             className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
-            style={{ background: c.primaryColor }}
+            style={{
+              background: isGlass
+                ? `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.65)`
+                : c.primaryColor,
+              backdropFilter: isGlass ? "blur(16px) saturate(180%)" : undefined,
+              WebkitBackdropFilter: isGlass ? "blur(16px) saturate(180%)" : undefined,
+              border: isGlass ? "1px solid rgba(255,255,255,0.4)" : undefined,
+              boxShadow: isGlass
+                ? "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)"
+                : undefined,
+            }}
           >
             {c.launcherIcon ? (
               <SvgIcon paths={getIconPaths(c.launcherIcon)} size={26} />
@@ -554,6 +645,47 @@ function TabAppearance({ config: c, set }: { config: BotConfig; set: Setter }) {
             onChange={(v) => set("cornerRadius", v)}
             options={[{ value: "sharp", label: "Sharp" }, { value: "round", label: "Rounded" }]}
           />
+        </Field>
+        <Field>
+          <Label sub="Frosted translucent panel with depth and blur — best over colorful backgrounds">Liquid Glass</Label>
+          <div className="relative overflow-hidden rounded-xl border-2 border-transparent transition-all duration-200" style={c.glassEffect ? { borderColor: "#a78bfa" } : {}}>
+            <button
+              type="button"
+              onClick={() => set("glassEffect", !c.glassEffect)}
+              className="w-full rounded-xl p-0.5 transition-all duration-200"
+              style={{
+                background: c.glassEffect
+                  ? "linear-gradient(135deg, #6366f1, #a78bfa, #ec4899)"
+                  : "linear-gradient(135deg, #e0e7ff, #f3e8ff, #fce7f3)",
+              }}
+            >
+              <div
+                className="flex items-center gap-3 rounded-[10px] px-4 py-3"
+                style={{
+                  background: c.glassEffect ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.8)",
+                  backdropFilter: c.glassEffect ? "blur(12px)" : "none",
+                }}
+              >
+                <span className="text-xl">🫧</span>
+                <div className="flex-1 text-left">
+                  <p className="text-[13px] font-semibold" style={{ color: c.glassEffect ? "#fff" : "#4c1d95" }}>
+                    {c.glassEffect ? "Liquid Glass On" : "Enable Liquid Glass"}
+                  </p>
+                  <p className="text-[11px] opacity-70" style={{ color: c.glassEffect ? "#e9d5ff" : "#6d28d9" }}>
+                    {c.glassEffect ? "Frosted blur effect active" : "Tap to activate frosted effect"}
+                  </p>
+                </div>
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all"
+                  style={{ background: c.glassEffect ? "rgba(255,255,255,0.25)" : "#ddd6fe" }}
+                >
+                  <span className="text-[11px] font-bold" style={{ color: c.glassEffect ? "#fff" : "#7c3aed" }}>
+                    {c.glassEffect ? "✓" : "○"}
+                  </span>
+                </div>
+              </div>
+            </button>
+          </div>
         </Field>
       </Section>
       <Section title="Icons">
