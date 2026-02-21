@@ -105,6 +105,17 @@ const clients: Record<string, ClientConfig> = {
   },
 };
 
+"abc-dental": {
+  assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
+  businessName: "maria ai",
+  greeting: "hi maria",
+  quickReplies: [],
+  primaryColor: "#93a276",
+  avatarUrl: "https://articulateusercontent.com/rise/courses/XH4LENOq67vCvnb0VlAsEGqrP52TvcKA/YiQRpk6GcMpPozDc.png",
+  footer: "andrew made this ",
+  themeMode: "dark",
+},
+
 export function getClient(widgetId: string): ClientConfig | null {
   return clients[widgetId] ?? null;
 }
