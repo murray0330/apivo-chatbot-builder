@@ -63,7 +63,7 @@ export type PublicClientConfig = Omit<ClientConfig, "assistantId">;
 const clients: Record<string, ClientConfig> = {
 "apivo": {
   assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-  businessName: "Agent Apivo",
+  businessName: "Apivo - AI Agent",
   greeting: "Hi! Welcome to Apivo. Are you looking to see how our AI receptionist can help your dental practice capture website visitors and automate your bookings 24/7?",
   quickReplies: [
       "Tell me more",
