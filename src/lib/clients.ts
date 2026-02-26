@@ -69,7 +69,7 @@ const clients: Record<string, ClientConfig> = {
       "New Patient",
       "Existing Patient",
     ],
-  primaryColor: "#615FFF",
+  primaryColor: "red",
   description: "AI Booking Assistant",
   footer: "Powered by Apivo",
   launcherIcon: "message",
