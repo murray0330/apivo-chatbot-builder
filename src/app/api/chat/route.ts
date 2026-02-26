@@ -22,13 +22,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { message, widgetId, previousChatId } = body as {
+  const { message, userMessage, widgetId, previousChatId } = body as {
     message?: unknown;
+    userMessage?: unknown;
     widgetId?: unknown;
     previousChatId?: unknown;
   };
 
-  if (typeof message !== "string" || !message.trim()) {
+  // Accept either `userMessage` (new widget) or `message` (legacy)
+  const msg = typeof userMessage === "string" ? userMessage : typeof message === "string" ? message : "";
+  if (!msg.trim()) {
     return NextResponse.json(
       { error: "message is required" },
       { status: 400, headers: CORS_HEADERS }
@@ -68,7 +71,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         assistantId: client.assistantId,
-        input: message,
+        input: msg,
         previousChatId: typeof previousChatId === "string" && previousChatId ? previousChatId : undefined,
       }),
     });
@@ -99,5 +102,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json(vapiData, { status: 200, headers: CORS_HEADERS });
+  // Normalize Vapi response → { chatId, reply }
+  const vd = vapiData as Record<string, unknown>;
+  const chatId = typeof vd.id === "string" ? vd.id : null;
+  let reply = "Sorry, I could not process your message.";
+  if (Array.isArray(vd.output) && vd.output.length > 0) {
+    const last = vd.output[vd.output.length - 1] as Record<string, unknown>;
+    const text = last.content ?? last.text ?? last.message;
+    if (typeof text === "string" && text) reply = text;
+  } else if (typeof vd.message === "string" && vd.message) {
+    reply = vd.message;
+  } else if (typeof vd.response === "string" && vd.response) {
+    reply = vd.response;
+  }
+  return NextResponse.json({ chatId, reply }, { status: 200, headers: CORS_HEADERS });
 }
