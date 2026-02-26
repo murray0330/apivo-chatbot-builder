@@ -307,7 +307,7 @@ function LivePreview({ config }: { config: BotConfig }) {
       ? `rgba(${parseInt(c.primaryColor.slice(1, 3), 16)},${parseInt(c.primaryColor.slice(3, 5), 16)},${parseInt(c.primaryColor.slice(5, 7), 16)},0.5)`
       : c.headerStyle === "gradient"
       ? `linear-gradient(135deg, ${c.primaryColor}, ${darken(c.primaryColor)})`
-      : `linear-gradient(135deg, ${c.primaryColor}, ${darken(c.primaryColor)})`;
+      : c.primaryColor;
   const headerTextColor = c.headerStyle === "minimal" && !isGlass ? (isDark ? "#fff" : "#111") : "#fff";
   const panelBg = isGlass
     ? isDark ? "rgba(20,20,30,0.45)" : "rgba(255,255,255,0.25)"
