@@ -70,7 +70,6 @@ const clients: Record<string, ClientConfig> = {
       "Book Demo",
     ],
   primaryColor: "#6366f1",
-  description: "AI Booking Assistant",
   launcherIcon: "message",
   headerIcon: "bot",
   historyReset: "24h",
