@@ -61,12 +61,24 @@ export type PublicClientConfig = Omit<ClientConfig, "assistantId">;
   // ─────────────────────────────────────────────────────────────────────────
 
 const clients: Record<string, ClientConfig> = {
-"feb-21": {
-  assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
-  businessName: "",
-  greeting: "Hello! How can I help you today?",
-  quickReplies: [],
-  primaryColor: "#2563eb",
+"apivo": {
+  assistantId: "a1471688-687e-407e-a8ce-456bce6bdc0e",
+  businessName: "Agent Apivo",
+  greeting: "Hi! Welcome to ABC Dental Clinic. To get started, are you a new or existing patient?",
+  quickReplies: [
+      "New Patient",
+      "Existing Patient",
+    ],
+  primaryColor: "#003F88",
+  description: "AI Booking Assistant",
+  footer: "Powered by Apivo",
+  launcherIcon: "message",
+  headerIcon: "bot",
+  botBubbleIcon: "bot",
+  userBubbleIcon: "user",
+  proactiveMessage: "Let's chat!",
+  notificationSound: true,
+  historyReset: "24h",
 },
   
   // ─────────────────────────────────────────────────────────────────────────
