@@ -286,154 +286,176 @@ function ToggleRow({ label, sub, checked, onChange }: { label: string; sub?: str
 function LivePreview({ config }: { config: BotConfig }) {
   const c = config;
   const isDark = c.themeMode === "dark";
-  const rad = c.cornerRadius === "round" ? "16px" : "6px";
-  const bubbleRad = c.cornerRadius === "round" ? "16px" : "6px";
-  const quickReplies = c.quickReplies.split(",").map((s) => s.trim()).filter(Boolean);
-
-  const headerBg = c.headerStyle === "gradient"
-    ? `linear-gradient(135deg, ${c.primaryColor}, ${c.primaryColor}dd)`
-    : c.headerStyle === "minimal"
-    ? isDark ? "#1e1e1e" : "#ffffff"
-    : c.primaryColor;
-  const headerColor = c.headerStyle === "minimal" ? (isDark ? "#fff" : "#111") : "#fff";
-  const headerBorder = c.headerStyle === "minimal" ? (isDark ? "1px solid #333" : "1px solid #e5e5e5") : "none";
-
   const isGlass = c.glassEffect;
-  const panelBg = isGlass
-    ? (isDark ? "rgba(20,20,30,0.45)" : "rgba(255,255,255,0.25)")
-    : (isDark ? "#1a1a1a" : "#ffffff");
-  const panelBorder = isGlass
-    ? (isDark ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.6)")
-    : undefined;
-  const panelShadow = isGlass
-    ? "0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4)"
-    : undefined;
-  const panelBackdrop = isGlass ? "blur(28px) saturate(200%)" : undefined;
-  const panelText = isDark ? "#e5e5e5" : (isGlass ? "#1a1a2e" : "#1e293b");
-  const botBubbleBg = isGlass
-    ? (isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.55)")
-    : (isDark ? "#2a2a2a" : "#f1f5f9");
-  const inputBg = isGlass
-    ? (isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.45)")
-    : (isDark ? "#2a2a2a" : "#f8fafc");
-  const inputBorder = isGlass
-    ? (isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.6)")
-    : (isDark ? "#333" : "#e2e8f0");
-  const footerColor = isDark ? "#666" : "#94a3b8";
-  // Glass header uses tinted frosted overlay instead of solid colour
-  const glassHeaderBg = isGlass
-    ? (isDark
-      ? `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.55)`
-      : `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.45)`)
-    : undefined;
-
+  const rad = c.cornerRadius === "round" ? "16px" : "6px";
+  const quickReplies = c.quickReplies.split(",").map((s) => s.trim()).filter(Boolean);
   const botAvatar = c.avatarUrl.startsWith("http");
 
-  function BotIcon({ size }: { size: number }) {
-    // Bot bubble icon takes priority — it's independent of the header avatar
-    if (c.botBubbleIcon) return (
-      <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: size, height: size, background: c.primaryColor + "25" }}>
-        <SvgIcon paths={getIconPaths(c.botBubbleIcon)} size={size * 0.6} className={isDark ? "text-gray-300" : "text-gray-500"} />
-      </div>
-    );
-    // Fall back to avatar image if no specific bot icon is chosen
-    if (botAvatar) return <img src={c.avatarUrl} alt="" style={{ width: size, height: size }} className="shrink-0 rounded-full object-cover" />;
-    return <div className="shrink-0 rounded-full" style={{ width: size, height: size, background: c.primaryColor, opacity: 0.2 }} />;
-  }
+  // Darken primaryColor for gradient end
+  const darken = (hex: string, amt = 45) => {
+    const n = parseInt(hex.replace("#", ""), 16);
+    const r = Math.max(0, (n >> 16) - amt);
+    const g = Math.max(0, ((n >> 8) & 0xff) - amt);
+    const b = Math.max(0, (n & 0xff) - amt);
+    return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+  };
+
+  const headerBg =
+    c.headerStyle === "minimal"
+      ? isDark ? "#1e1e1e" : "#ffffff"
+      : isGlass
+      ? `rgba(${parseInt(c.primaryColor.slice(1, 3), 16)},${parseInt(c.primaryColor.slice(3, 5), 16)},${parseInt(c.primaryColor.slice(5, 7), 16)},0.5)`
+      : c.headerStyle === "gradient"
+      ? `linear-gradient(135deg, ${c.primaryColor}, ${darken(c.primaryColor)})`
+      : `linear-gradient(135deg, ${c.primaryColor}, ${darken(c.primaryColor)})`;
+  const headerTextColor = c.headerStyle === "minimal" && !isGlass ? (isDark ? "#fff" : "#111") : "#fff";
+  const panelBg = isGlass
+    ? isDark ? "rgba(20,20,30,0.45)" : "rgba(255,255,255,0.25)"
+    : isDark ? "#1a1a1a" : "#ffffff";
+  const msgAreaBg = isDark ? "#141414" : "#fafafa";
+  const botBubbleBg = isGlass
+    ? isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.55)"
+    : isDark ? "#2a2a2a" : "#ffffff";
+  const borderColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const textColor = isDark ? "#e5e5e5" : "#18181b";
+  const placeholderColor = isDark ? "#555" : "#a1a1aa";
 
   return (
     <div className="flex flex-col items-center">
       <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">Live Preview</p>
 
-      {/* Wrapper: panel stacked above launcher bubble */}
-      {/* When glass is on, show a vivid gradient background so the blur is visible */}
+      {/* Glass background wrapper */}
       <div
         className="flex flex-col items-end transition-all duration-300"
         style={{
-          width: isGlass ? 410 : 370,
-          padding: isGlass ? "20px 20px 20px 20px" : 0,
+          padding: isGlass ? "20px" : 0,
           borderRadius: isGlass ? "24px" : 0,
           background: isGlass
-            ? (isDark
-              ? "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%)"
-              : "linear-gradient(135deg, #667eea 0%, #764ba2 40%, #f093fb 70%, #f5576c 100%)")
+            ? isDark
+              ? "linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 70%,#533483 100%)"
+              : "linear-gradient(135deg,#667eea 0%,#764ba2 40%,#f093fb 70%,#f5576c 100%)"
             : "transparent",
         }}
       >
-        {/* Chat panel — exact real-world size: 370 × 560 */}
+        {/* Chat panel — 370 × 560 */}
         <div
           className="flex flex-col overflow-hidden transition-all duration-300"
           style={{
             width: 370, height: 560, borderRadius: rad,
             background: panelBg,
-            color: panelText,
+            border: `1px solid ${isGlass ? (isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.6)") : borderColor}`,
+            boxShadow: isGlass
+              ? "0 8px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.4)"
+              : "0 12px 48px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.08)",
+            backdropFilter: isGlass ? "blur(28px) saturate(200%)" : undefined,
+            WebkitBackdropFilter: isGlass ? "blur(28px) saturate(200%)" : undefined,
+            color: textColor,
             fontSize: 14,
             fontFamily: c.fontFamily && c.fontFamily !== "system"
               ? `${c.fontFamily}, system-ui, -apple-system, sans-serif`
               : undefined,
-            border: panelBorder,
-            boxShadow: panelShadow ?? "0 8px 32px rgba(0,0,0,0.18)",
-            backdropFilter: panelBackdrop,
-            WebkitBackdropFilter: panelBackdrop,
           }}
         >
-          {/* Header */}
+          {/* ── Header ── */}
           <div
-            className="flex shrink-0 items-center gap-2.5 px-4 py-3.5"
+            className="flex shrink-0 items-center gap-3 px-[18px] py-4"
             style={{
-              background: isGlass ? (glassHeaderBg ?? headerBg) : headerBg,
+              background: headerBg,
               backdropFilter: isGlass ? "blur(8px)" : undefined,
               WebkitBackdropFilter: isGlass ? "blur(8px)" : undefined,
-              color: headerColor,
-              borderBottom: isGlass ? "1px solid rgba(255,255,255,0.2)" : headerBorder,
+              borderBottom: isGlass
+                ? "1px solid rgba(255,255,255,0.2)"
+                : c.headerStyle === "minimal" ? `1px solid ${borderColor}` : undefined,
             }}
           >
+            {/* Icon / avatar */}
             {botAvatar ? (
-              <img src={c.avatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full border border-white/20 object-cover" />
-            ) : c.headerIcon ? (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
-                <SvgIcon paths={getIconPaths(c.headerIcon)} size={17} />
+              <img src={c.avatarUrl} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+            ) : (
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                style={{ background: "rgba(255,255,255,0.2)" }}
+              >
+                {c.headerIcon ? (
+                  <SvgIcon paths={getIconPaths(c.headerIcon)} size={20} className="text-white" />
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: headerTextColor }}>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                )}
               </div>
-            ) : null}
-            <div className="flex-1 min-w-0">
-              <p className="text-[15px] font-semibold leading-tight truncate">{c.displayName || "Chat"}</p>
-              {c.description && <p className="text-[11px] opacity-75 truncate mt-0.5">{c.description}</p>}
+            )}
+
+            {/* Title + online badge */}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[0.93rem] font-semibold leading-tight" style={{ color: headerTextColor }}>
+                {c.displayName || "Chat"}
+              </p>
+              {c.description ? (
+                <p className="truncate text-[11px] opacity-75 mt-0.5" style={{ color: headerTextColor }}>
+                  {c.description}
+                </p>
+              ) : c.headerStyle !== "minimal" && (
+                <span className="flex items-center gap-1.5 text-[0.73rem]" style={{ color: "rgba(255,255,255,0.85)" }}>
+                  <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-green-400" style={{ boxShadow: "0 0 6px rgba(52,211,153,0.5)" }} />
+                  Online
+                </span>
+              )}
             </div>
-            <span className="text-xl opacity-60 cursor-default leading-none">×</span>
+
+            {/* Close */}
+            <div
+              className="flex h-8 w-8 shrink-0 cursor-default items-center justify-center rounded-full"
+              style={{ background: "rgba(255,255,255,0.2)", color: headerTextColor }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
           </div>
 
-          {/* Messages — flex-1 so they fill the space */}
-          <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-3.5 py-3.5" style={{ lineHeight: 1.45 }}>
+          {/* ── Messages ── */}
+          <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto p-4" style={{ background: msgAreaBg }}>
             {/* Bot greeting */}
-            <div className="flex items-end gap-2">
-              <BotIcon size={26} />
+            <div className="flex justify-start">
               <div
-                className="max-w-[78%] px-3.5 py-2.5"
-                style={{ background: botBubbleBg, borderRadius: `${bubbleRad} ${bubbleRad} ${bubbleRad} 4px` }}
+                className="max-w-[82%] break-words px-4 py-3 text-[0.88rem] leading-relaxed"
+                style={{
+                  background: botBubbleBg,
+                  borderRadius: c.cornerRadius === "round" ? "16px 16px 16px 4px" : "6px 6px 6px 2px",
+                  boxShadow: "0 1px 4px rgba(0,0,0,.06)",
+                  border: "1px solid rgba(0,0,0,.06)",
+                  color: textColor,
+                }}
               >
                 {c.greeting || "Hello! How can I help you?"}
               </div>
             </div>
-            {/* User message */}
-            <div className="flex items-end justify-end gap-2">
+
+            {/* User bubble */}
+            <div className="flex justify-end">
               <div
-                className="max-w-[78%] px-3.5 py-2.5 text-white"
-                style={{ background: c.primaryColor, borderRadius: `${bubbleRad} ${bubbleRad} 4px ${bubbleRad}` }}
+                className="max-w-[82%] break-words px-4 py-3 text-[0.88rem] leading-relaxed text-white"
+                style={{
+                  background: c.primaryColor,
+                  borderRadius: c.cornerRadius === "round" ? "16px 16px 4px 16px" : "6px 6px 2px 6px",
+                }}
               >
                 Tell me more
               </div>
-              {c.userBubbleIcon && (
-                <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: 26, height: 26, background: c.primaryColor + "25" }}>
-                  <SvgIcon paths={getIconPaths(c.userBubbleIcon)} size={14} className={isDark ? "text-gray-300" : "text-gray-500"} />
-                </div>
-              )}
             </div>
+
             {/* Bot response */}
-            <div className="flex items-end gap-2">
-              <BotIcon size={26} />
+            <div className="flex justify-start">
               <div
-                className="max-w-[78%] px-3.5 py-2.5"
-                style={{ background: botBubbleBg, borderRadius: `${bubbleRad} ${bubbleRad} ${bubbleRad} 4px` }}
+                className="max-w-[82%] break-words px-4 py-3 text-[0.88rem] leading-relaxed"
+                style={{
+                  background: botBubbleBg,
+                  borderRadius: c.cornerRadius === "round" ? "16px 16px 16px 4px" : "6px 6px 6px 2px",
+                  boxShadow: "0 1px 4px rgba(0,0,0,.06)",
+                  border: "1px solid rgba(0,0,0,.06)",
+                  color: textColor,
+                }}
               >
                 I&apos;d be happy to help! What would you like to know?
                 {c.messageFeedback && (
@@ -444,67 +466,73 @@ function LivePreview({ config }: { config: BotConfig }) {
                 )}
               </div>
             </div>
+
+            {/* Quick replies */}
+            {quickReplies.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {quickReplies.map((r) => (
+                  <span
+                    key={r}
+                    className="cursor-default rounded-full border px-4 py-2 text-[0.84rem] font-medium"
+                    style={{
+                      background: isDark ? "#2a2a2a" : "#ffffff",
+                      borderColor: isDark ? "#444" : "rgba(0,0,0,.08)",
+                      color: isDark ? "#ccc" : "#3f3f46",
+                      boxShadow: "0 1px 3px rgba(0,0,0,.04)",
+                    }}
+                  >
+                    {r}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Quick replies */}
-          {quickReplies.length > 0 && (
-            <div className="flex shrink-0 flex-wrap gap-1.5 border-t px-3.5 py-2" style={{ borderColor: inputBorder }}>
-              {quickReplies.map((r) => (
-                <span
-                  key={r}
-                  className="inline-block cursor-default rounded-full px-3 py-1 text-[12px] font-medium"
-                  style={{ background: isDark ? "#333" : "#f1f5f9", color: isDark ? "#ccc" : "#475569" }}
-                >
-                  {r}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Input bar */}
+          {/* ── Input footer ── */}
           <div
-            className="flex shrink-0 items-center gap-2 border-t px-3 py-2.5"
+            className="flex shrink-0 items-center gap-2 border-t px-3 py-3"
             style={{
-              borderColor: isGlass ? "rgba(255,255,255,0.15)" : inputBorder,
-              background: isGlass ? "rgba(255,255,255,0.05)" : undefined,
+              borderColor: isGlass ? "rgba(255,255,255,0.15)" : borderColor,
+              background: isGlass ? "rgba(255,255,255,0.05)" : isDark ? "#1e1e1e" : "#ffffff",
             }}
           >
             <div
-              className="h-9 flex-1 rounded-lg px-3 flex items-center text-[13px]"
+              className="flex h-10 flex-1 items-center px-4 text-[0.875rem]"
               style={{
-                background: inputBg,
-                color: footerColor,
-                border: `1px solid ${inputBorder}`,
-                backdropFilter: isGlass ? "blur(8px)" : undefined,
-                WebkitBackdropFilter: isGlass ? "blur(8px)" : undefined,
+                background: isDark ? "#2a2a2a" : "#fafafa",
+                borderRadius: "9999px",
+                border: `1px solid ${borderColor}`,
+                color: placeholderColor,
               }}
             >
-              {c.messagePlaceholder || "Type a message…"}
+              {c.messagePlaceholder || "Type a message..."}
             </div>
             <div
-              className="flex h-9 w-[60px] shrink-0 items-center justify-center rounded-lg text-[13px] font-semibold text-white"
-              style={{
-                background: isGlass
-                  ? `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.75)`
-                  : c.primaryColor,
-                backdropFilter: isGlass ? "blur(8px)" : undefined,
-                WebkitBackdropFilter: isGlass ? "blur(8px)" : undefined,
-                border: isGlass ? "1px solid rgba(255,255,255,0.3)" : undefined,
-              }}
+              className="flex h-[38px] w-[38px] shrink-0 cursor-default items-center justify-center rounded-full text-white"
+              style={{ background: c.primaryColor }}
             >
-              Send
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+                <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
             </div>
           </div>
 
-          {/* Footer */}
+          {/* Footer text */}
           {c.footer && (
-            <div className="shrink-0 border-t px-3 py-1.5 text-center text-[11px]" style={{ borderColor: isGlass ? "rgba(255,255,255,0.12)" : inputBorder, color: footerColor }}>
+            <div
+              className="shrink-0 border-t px-3 py-1.5 text-center text-[11px]"
+              style={{
+                borderColor: isGlass ? "rgba(255,255,255,0.12)" : borderColor,
+                color: isDark ? "#666" : "#94a3b8",
+                background: isDark ? "#1e1e1e" : "#ffffff",
+              }}
+            >
               {c.footer}
             </div>
           )}
         </div>
 
-        {/* Launcher bubble — below the panel, right-aligned */}
+        {/* ── Launcher ── */}
         <div className="mt-3 flex flex-col items-end gap-2">
           {c.proactiveMessage && (
             <div
@@ -521,23 +549,29 @@ function LivePreview({ config }: { config: BotConfig }) {
             </div>
           )}
           <div
-            className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+            className="relative flex h-14 w-14 cursor-default items-center justify-center rounded-full text-white transition-transform hover:scale-105"
             style={{
               background: isGlass
-                ? `rgba(${parseInt(c.primaryColor.slice(1,3),16)},${parseInt(c.primaryColor.slice(3,5),16)},${parseInt(c.primaryColor.slice(5,7),16)},0.65)`
+                ? `rgba(${parseInt(c.primaryColor.slice(1, 3), 16)},${parseInt(c.primaryColor.slice(3, 5), 16)},${parseInt(c.primaryColor.slice(5, 7), 16)},0.65)`
                 : c.primaryColor,
               backdropFilter: isGlass ? "blur(16px) saturate(180%)" : undefined,
               WebkitBackdropFilter: isGlass ? "blur(16px) saturate(180%)" : undefined,
               border: isGlass ? "1px solid rgba(255,255,255,0.4)" : undefined,
               boxShadow: isGlass
-                ? "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)"
-                : undefined,
+                ? "0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4)"
+                : `0 4px 24px ${c.primaryColor}55,0 2px 8px rgba(0,0,0,.15)`,
             }}
           >
+            <span
+              className="absolute inset-0 animate-ping rounded-full opacity-30"
+              style={{ background: c.primaryColor }}
+            />
             {c.launcherIcon ? (
-              <SvgIcon paths={getIconPaths(c.launcherIcon)} size={26} />
+              <SvgIcon paths={getIconPaths(c.launcherIcon)} size={24} />
             ) : (
-              <span className="text-2xl">💬</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 24, height: 24, position: "relative" }}>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
             )}
           </div>
         </div>
