@@ -64,7 +64,7 @@ const clients: Record<string, ClientConfig> = {
 "apivo": {
   assistantId: "a1471688-687e-407e-a8ce-456bce6bdc0e",
   businessName: "Agent Apivo",
-  greeting: "Hi! Welcome to ABC Dental Clinic. To get started, are you a new or existing patient?",
+  greeting: "Hi! Welcome to Apivo. To get started, are you a new or existing patient?",
   quickReplies: [
       "New Patient",
       "Existing Patient",
@@ -74,8 +74,6 @@ const clients: Record<string, ClientConfig> = {
   footer: "Powered by Apivo",
   launcherIcon: "message",
   headerIcon: "bot",
-  botBubbleIcon: "bot",
-  userBubbleIcon: "user",
   proactiveMessage: "Let's chat!",
   notificationSound: true,
   historyReset: "24h",
