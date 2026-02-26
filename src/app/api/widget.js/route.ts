@@ -31,7 +31,7 @@ function widgetCSS(): string {
   return `
 var AW_CSS = [
 "#aw-root{--aw-primary:#6366f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}",
-"#aw-launcher{position:fixed;bottom:20px;right:20px;z-index:10001;width:56px;height:56px;border-radius:50%;border:none;background:var(--aw-primary);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}",
+"#aw-launcher{position:fixed;bottom:20px;right:20px;z-index:10001;width:56px;height:56px;border-radius:50%;border:none;background:var(--aw-primary);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);opacity:0;transition:opacity .3s,transform .2s,box-shadow .2s}",
 "#aw-launcher:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(0,0,0,.35)}",
 "#aw-launcher:active{transform:scale(.95)}",
 "#aw-launcher svg{width:24px;height:24px}",
@@ -191,8 +191,9 @@ function widgetJS(apiOrigin: string): string {
         headerEl.style.background =
           "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
       }
+      launcher.style.opacity = "1";
     })
-    .catch(function() {});
+    .catch(function() { launcher.style.opacity = "1"; });
 
   function darkenHex(hex, amt) {
     var n = parseInt(hex.replace("#", ""), 16);
