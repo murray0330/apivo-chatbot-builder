@@ -73,7 +73,7 @@ var AW_CSS = [
 ".aw-qr{padding:8px 16px;border-radius:9999px;border:1px solid rgba(0,0,0,.08);background:#fff;font-size:.84rem;font-weight:500;color:#3f3f46;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.04);font-family:inherit}",
 ".aw-qr:hover{border-color:var(--aw-primary);background:#eef2ff;color:var(--aw-primary)}",
 ".aw-footer{display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid rgba(0,0,0,.08);background:#fff;flex-shrink:0}",
-"#aw-input{flex:1;padding:10px 16px;border-radius:9999px;border:1px solid rgba(0,0,0,.08);background:#fafafa;font-size:16px;color:#18181b;outline:none;font-family:inherit}",
+"#aw-input{flex:1;padding:10px 16px;border-radius:9999px;border:1px solid rgba(0,0,0,.08);background:#fafafa;font-size:16px!important;color:#18181b;outline:none;font-family:inherit}",
 "#aw-input::placeholder{color:#a1a1aa}",
 "#aw-input:focus{border-color:var(--aw-primary);box-shadow:0 0 0 3px rgba(99,102,241,.1)}",
 "#aw-send{width:38px;height:38px;border-radius:50%;border:none;background:var(--aw-primary);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;flex-shrink:0}",
@@ -177,6 +177,22 @@ function widgetJS(apiOrigin: string): string {
   });
   document.addEventListener("keydown", function(e) {
     if (e.key === "Escape" && isOpen) toggle();
+  });
+
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input.addEventListener("focus", function() {
+    var vp = document.querySelector("meta[name='viewport']");
+    if (vp) {
+      vp._awPrev = vp.getAttribute("content");
+      vp.setAttribute("content", (vp._awPrev || "") + ", maximum-scale=1");
+    }
+  });
+  input.addEventListener("blur", function() {
+    var vp = document.querySelector("meta[name='viewport']");
+    if (vp && vp._awPrev != null) {
+      vp.setAttribute("content", vp._awPrev);
+      vp._awPrev = null;
+    }
   });
 
   /* Eagerly fetch config on load so colour/branding is applied before first click */
