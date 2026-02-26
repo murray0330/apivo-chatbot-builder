@@ -31,8 +31,8 @@ function widgetCSS(): string {
   return `
 var AW_CSS = [
 "#aw-root{--aw-primary:#6366f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}",
-"#aw-launcher{position:fixed;bottom:20px;right:20px;z-index:10001;width:56px;height:56px;border-radius:50%;border:none;background:var(--aw-primary);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(99,102,241,.35),0 2px 8px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}",
-"#aw-launcher:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(99,102,241,.55)}",
+"#aw-launcher{position:fixed;bottom:20px;right:20px;z-index:10001;width:56px;height:56px;border-radius:50%;border:none;background:var(--aw-primary);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}",
+"#aw-launcher:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(0,0,0,.35)}",
 "#aw-launcher:active{transform:scale(.95)}",
 "#aw-launcher svg{width:24px;height:24px}",
 "#aw-launcher .aw-icon-x{display:none}",
@@ -45,7 +45,7 @@ var AW_CSS = [
 "#aw-panel{position:fixed;z-index:10000;bottom:88px;right:12px;left:12px;height:min(560px,calc(100vh - 140px));display:flex;flex-direction:column;background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.08);box-shadow:0 12px 48px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.08);overflow:hidden;transform:translateY(16px) scale(.97);opacity:0;pointer-events:none;transition:transform .3s,opacity .3s}",
 "#aw-panel.aw-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}",
 "@media(min-width:640px){#aw-panel{bottom:104px;right:28px;left:auto;width:380px}}",
-".aw-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,var(--aw-primary),color-mix(in srgb,var(--aw-primary) 80%,#000));flex-shrink:0}",
+".aw-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--aw-primary);flex-shrink:0}",
 ".aw-header-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}",
 ".aw-header-icon svg{width:20px;height:20px;color:#fff}",
 ".aw-header-text{flex:1;min-width:0}",
@@ -143,6 +143,7 @@ function widgetJS(apiOrigin: string): string {
   var chatId = null;
   var isBusy = false;
   var opened = false;
+  var cachedCfg = null;
 
   /* Inject CSS */
   var styleEl = document.createElement("style");
@@ -164,6 +165,7 @@ function widgetJS(apiOrigin: string): string {
   var input     = root.querySelector("#aw-input");
   var sendBtn   = root.querySelector("#aw-send");
   var bizName   = root.querySelector("#aw-biz-name");
+  var headerEl  = root.querySelector(".aw-header");
 
   var isOpen = false;
 
@@ -177,28 +179,58 @@ function widgetJS(apiOrigin: string): string {
     if (e.key === "Escape" && isOpen) toggle();
   });
 
+  /* Eagerly fetch config on load so colour/branding is applied before first click */
+  fetch(API + "/api/config?widgetId=" + encodeURIComponent(WIDGET_ID))
+    .then(function(r) { return r.json(); })
+    .then(function(cfg) {
+      if (cfg.error) return;
+      cachedCfg = cfg;
+      if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
+      if (cfg.businessName) bizName.textContent = cfg.businessName;
+      if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
+        headerEl.style.background =
+          "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
+      }
+    })
+    .catch(function() {});
+
+  function darkenHex(hex, amt) {
+    var n = parseInt(hex.replace("#", ""), 16);
+    var r = Math.max(0, (n >> 16) - amt);
+    var g = Math.max(0, ((n >> 8) & 0xff) - amt);
+    var b = Math.max(0, (n & 0xff) - amt);
+    return "#" + [r, g, b].map(function(v) { return v.toString(16).padStart(2, "0"); }).join("");
+  }
+
   function toggle() {
     isOpen = !isOpen;
     panel.classList.toggle("aw-open", isOpen);
     launcher.setAttribute("aria-expanded", String(isOpen));
     if (isOpen && !opened) {
       opened = true;
-      fetchConfig();
+      if (cachedCfg) {
+        addMsg("bot", cachedCfg.greeting || "Hello! How can I help you today?");
+        if (cachedCfg.quickReplies && cachedCfg.quickReplies.length) showQR(cachedCfg.quickReplies);
+      } else {
+        /* Config still loading — wait for it then show greeting */
+        fetch(API + "/api/config?widgetId=" + encodeURIComponent(WIDGET_ID))
+          .then(function(r) { return r.json(); })
+          .then(function(cfg) {
+            if (cfg.error) { addMsg("bot", "Configuration error: " + cfg.error); return; }
+            cachedCfg = cfg;
+            if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
+            if (cfg.businessName) bizName.textContent = cfg.businessName;
+            if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
+              headerEl.style.background =
+                "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
+            }
+            addMsg("bot", cfg.greeting || "Hello! How can I help you today?");
+            if (cfg.quickReplies && cfg.quickReplies.length) showQR(cfg.quickReplies);
+          })
+          .catch(function() { addMsg("bot", "Could not load chat. Please refresh the page."); });
+      }
     }
     if (isOpen) setTimeout(function() { input.focus(); }, 320);
-  }
-
-  function fetchConfig() {
-    fetch(API + "/api/config?widgetId=" + encodeURIComponent(WIDGET_ID))
-      .then(function(r) { return r.json(); })
-      .then(function(cfg) {
-        if (cfg.error) { addMsg("bot", "Configuration error: " + cfg.error); return; }
-        if (cfg.businessName) bizName.textContent = cfg.businessName;
-        if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
-        addMsg("bot", cfg.greeting || "Hello! How can I help you today?");
-        if (cfg.quickReplies && cfg.quickReplies.length) showQR(cfg.quickReplies);
-      })
-      .catch(function() { addMsg("bot", "Could not load chat. Please refresh the page."); });
   }
 
   function send(text) {
