@@ -48,6 +48,7 @@ var AW_CSS = [
 ".aw-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--aw-primary);flex-shrink:0}",
 ".aw-header-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}",
 ".aw-header-icon svg{width:20px;height:20px;color:#fff}",
+".aw-header-icon img{width:36px;height:36px;border-radius:8px;object-fit:cover;display:block}",
 ".aw-header-text{flex:1;min-width:0}",
 "#aw-biz-name{display:block;font-size:.93rem;font-weight:600;color:#fff;line-height:1.3}",
 ".aw-online{display:flex;align-items:center;gap:6px;font-size:.73rem;color:rgba(255,255,255,.85)}",
@@ -207,9 +208,21 @@ function widgetJS(apiOrigin: string): string {
         headerEl.style.background =
           "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
       }
+      if (cfg.avatarUrl) applyAvatar(cfg.avatarUrl);
       launcher.style.opacity = "1";
     })
     .catch(function() { launcher.style.opacity = "1"; });
+
+  function applyAvatar(url) {
+    var iconEl = root.querySelector(".aw-header-icon");
+    if (!iconEl) return;
+    iconEl.style.background = "none";
+    var img = document.createElement("img");
+    img.src = url;
+    img.alt = "";
+    iconEl.innerHTML = "";
+    iconEl.appendChild(img);
+  }
 
   function darkenHex(hex, amt) {
     var n = parseInt(hex.replace("#", ""), 16);
@@ -241,6 +254,7 @@ function widgetJS(apiOrigin: string): string {
               headerEl.style.background =
                 "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
             }
+            if (cfg.avatarUrl) applyAvatar(cfg.avatarUrl);
             addMsg("bot", cfg.greeting || "Hello! How can I help you today?");
             if (cfg.quickReplies && cfg.quickReplies.length) showQR(cfg.quickReplies);
           })
