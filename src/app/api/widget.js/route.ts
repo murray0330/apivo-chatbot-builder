@@ -81,7 +81,46 @@ var AW_CSS = [
 "#aw-send:hover{filter:brightness(1.1)}",
 "#aw-send:active{transform:scale(.9)}",
 "#aw-send:disabled{opacity:.45;cursor:not-allowed}",
-"#aw-send svg{width:18px;height:18px}"
+"#aw-send svg{width:18px;height:18px}",
+"#aw-footer-bar{padding:6px 16px;text-align:center;font-size:.72rem;color:#a1a1aa;background:#fff;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;display:none}",
+"#aw-proactive{position:fixed;bottom:90px;right:14px;max-width:240px;background:#fff;border-radius:12px 12px 2px 12px;padding:10px 14px;font-size:.84rem;color:#27272a;box-shadow:0 4px 16px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);z-index:10000;animation:aw-msgIn .4s ease-out;display:none}",
+"@media(min-width:640px){#aw-proactive{right:28px;bottom:110px}}",
+"#aw-root.aw-sharp #aw-panel{border-radius:6px}",
+"#aw-root.aw-sharp #aw-launcher{border-radius:8px}",
+"#aw-root.aw-sharp .aw-bubble-bot{border-radius:6px 6px 6px 2px}",
+"#aw-root.aw-sharp .aw-bubble-user{border-radius:6px 6px 2px 6px}",
+"#aw-root.aw-sharp #aw-input{border-radius:6px}",
+"#aw-root.aw-sharp .aw-qr{border-radius:6px}",
+"#aw-root.aw-minimal .aw-header{background:transparent!important;border-bottom:1px solid rgba(0,0,0,.1)}",
+"#aw-root.aw-minimal #aw-biz-name{color:#111}",
+"#aw-root.aw-minimal .aw-online{color:rgba(0,0,0,.5)}",
+"#aw-root.aw-minimal #aw-close{background:rgba(0,0,0,.08);color:#374151}",
+"#aw-root.aw-minimal #aw-close:hover{background:rgba(0,0,0,.15)}",
+"#aw-root.aw-minimal .aw-header-icon{background:rgba(0,0,0,.08)}",
+"#aw-root.aw-minimal .aw-header-icon svg{color:#374151}",
+"#aw-root.aw-dark #aw-panel{background:#18181b;border-color:rgba(255,255,255,.08)}",
+"#aw-root.aw-dark #aw-messages{background:#09090b}",
+"#aw-root.aw-dark .aw-bubble-bot{background:#27272a;color:#f4f4f5;border-color:rgba(255,255,255,.08)}",
+"#aw-root.aw-dark .aw-footer{background:#18181b;border-color:rgba(255,255,255,.08)}",
+"#aw-root.aw-dark #aw-footer-bar{background:#18181b;border-color:rgba(255,255,255,.08);color:#71717a}",
+"#aw-root.aw-dark #aw-input{background:#27272a;color:#f4f4f5;border-color:rgba(255,255,255,.1)}",
+"#aw-root.aw-dark #aw-quick-replies{background:#09090b}",
+"#aw-root.aw-dark .aw-qr{background:#27272a;color:#d4d4d8;border-color:rgba(255,255,255,.08)}",
+"#aw-root.aw-dark.aw-minimal .aw-header{border-color:rgba(255,255,255,.1)}",
+"#aw-root.aw-dark.aw-minimal #aw-biz-name{color:#fff}",
+"#aw-root.aw-dark.aw-minimal .aw-online{color:rgba(255,255,255,.5)}",
+"#aw-root.aw-dark.aw-minimal #aw-close{background:rgba(255,255,255,.1);color:#d4d4d8}",
+"#aw-root.aw-dark.aw-minimal .aw-header-icon{background:rgba(255,255,255,.1)}",
+"#aw-root.aw-dark.aw-minimal .aw-header-icon svg{color:#d4d4d8}",
+"#aw-root.aw-dark #aw-proactive{background:#27272a;color:#f4f4f5;border-color:rgba(255,255,255,.08)}",
+"#aw-root.aw-glass #aw-panel{background:rgba(255,255,255,.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}",
+"#aw-root.aw-glass #aw-messages{background:rgba(255,255,255,.08)}",
+"#aw-root.aw-glass .aw-footer{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15)}",
+"#aw-root.aw-glass #aw-input{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.2);color:#fff}",
+"#aw-root.aw-glass #aw-input::placeholder{color:rgba(255,255,255,.6)}",
+"#aw-root.aw-glass .aw-bubble-bot{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.15)}",
+"#aw-root.aw-glass #aw-quick-replies{background:rgba(255,255,255,.08)}",
+"#aw-root.aw-glass .aw-qr{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.2)}"
 ].join("\\n");
 `;
 }
@@ -94,6 +133,7 @@ function widgetHTML(): string {
   const xSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   const sendSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
   const html = [
+    `<div id="aw-proactive"></div>`,
     `<button id="aw-launcher" aria-label="Open chat" aria-expanded="false">`,
     `  <span class="aw-ping"></span>`,
     `  <span class="aw-icon-chat">${chatSvg}</span>`,
@@ -118,6 +158,7 @@ function widgetHTML(): string {
     `    <input id="aw-input" type="text" placeholder="Type a message..." maxlength="500" aria-label="Chat message" />`,
     `    <button id="aw-send" aria-label="Send">${sendSvg}</button>`,
     `  </div>`,
+    `  <div id="aw-footer-bar"></div>`,
     `</div>`,
   ].join("");
   const escaped = JSON.stringify(html);
@@ -157,18 +198,41 @@ function widgetJS(apiOrigin: string): string {
   root.innerHTML = AW_HTML;
   document.body.appendChild(root);
 
-  var launcher  = root.querySelector("#aw-launcher");
-  var panel     = root.querySelector("#aw-panel");
-  var closeBtn  = root.querySelector("#aw-close");
-  var msgArea   = root.querySelector("#aw-messages");
-  var typingEl  = root.querySelector("#aw-typing");
-  var qrArea    = root.querySelector("#aw-quick-replies");
-  var input     = root.querySelector("#aw-input");
-  var sendBtn   = root.querySelector("#aw-send");
-  var bizName   = root.querySelector("#aw-biz-name");
-  var headerEl  = root.querySelector(".aw-header");
+  var launcher    = root.querySelector("#aw-launcher");
+  var panel       = root.querySelector("#aw-panel");
+  var closeBtn    = root.querySelector("#aw-close");
+  var msgArea     = root.querySelector("#aw-messages");
+  var typingEl    = root.querySelector("#aw-typing");
+  var qrArea      = root.querySelector("#aw-quick-replies");
+  var input       = root.querySelector("#aw-input");
+  var sendBtn     = root.querySelector("#aw-send");
+  var bizName     = root.querySelector("#aw-biz-name");
+  var headerEl    = root.querySelector(".aw-header");
+  var footerBar   = root.querySelector("#aw-footer-bar");
+  var proactiveEl = root.querySelector("#aw-proactive");
 
   var isOpen = false;
+
+  /* Icon SVG paths — mirrors BotBuilder ICON_OPTIONS */
+  var ICONS = {
+    chat:    '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    message: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+    bot:     '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+    spark:   '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
+    zap:     '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+    heart:   '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    star:    '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z"/>',
+    globe:   '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    shield:  '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+    smile:   '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>',
+    user:    '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  };
+
+  function makeIconSvg(key, size) {
+    if (!key || !ICONS[key]) return null;
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:' + size + 'px;height:' + size + 'px">' + ICONS[key] + '</svg>';
+  }
 
   launcher.addEventListener("click", toggle);
   closeBtn.addEventListener("click", toggle);
@@ -196,23 +260,69 @@ function widgetJS(apiOrigin: string): string {
     }
   });
 
-  /* Eagerly fetch config on load so colour/branding is applied before first click */
-  fetch(API + "/api/config?widgetId=" + encodeURIComponent(WIDGET_ID))
-    .then(function(r) { return r.json(); })
-    .then(function(cfg) {
-      if (cfg.error) return;
-      cachedCfg = cfg;
-      if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
-      if (cfg.businessName) bizName.textContent = cfg.businessName;
-      if (cfg.fontFamily) root.style.fontFamily = cfg.fontFamily;
-      if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
-        headerEl.style.background =
-          "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
+  /* Apply all config fields to the widget */
+  function applyConfig(cfg) {
+    if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
+    if (cfg.businessName) bizName.textContent = cfg.businessName;
+    if (cfg.fontFamily) root.style.fontFamily = cfg.fontFamily;
+    if (cfg.messagePlaceholder) input.placeholder = cfg.messagePlaceholder;
+
+    /* Header style */
+    if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
+      headerEl.style.background =
+        "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
+    } else if (cfg.headerStyle === "minimal") {
+      root.classList.add("aw-minimal");
+    }
+
+    /* Avatar takes precedence over headerIcon */
+    if (cfg.avatarUrl) {
+      applyAvatar(cfg.avatarUrl);
+    } else if (cfg.headerIcon) {
+      var hSvg = makeIconSvg(cfg.headerIcon, 20);
+      if (hSvg) {
+        var hIconEl = root.querySelector(".aw-header-icon");
+        if (hIconEl) hIconEl.innerHTML = hSvg;
       }
-      if (cfg.avatarUrl) applyAvatar(cfg.avatarUrl);
-      launcher.style.opacity = "1";
-    })
-    .catch(function() { launcher.style.opacity = "1"; });
+    }
+
+    /* Launcher icon */
+    if (cfg.launcherIcon) {
+      var lSvg = makeIconSvg(cfg.launcherIcon, 24);
+      if (lSvg) {
+        var chatSpan = launcher.querySelector(".aw-icon-chat");
+        if (chatSpan) chatSpan.innerHTML = lSvg;
+      }
+    }
+
+    /* Theme mode */
+    if (cfg.themeMode === "dark") root.classList.add("aw-dark");
+
+    /* Corner radius */
+    if (cfg.cornerRadius === "sharp") root.classList.add("aw-sharp");
+
+    /* Glass effect */
+    if (cfg.glassEffect) root.classList.add("aw-glass");
+
+    /* Footer text bar */
+    if (cfg.footer) {
+      footerBar.textContent = cfg.footer;
+      footerBar.style.display = "block";
+    }
+
+    /* Proactive message — shown above launcher, dismissed on first open */
+    if (cfg.proactiveMessage) {
+      proactiveEl.textContent = cfg.proactiveMessage;
+      proactiveEl.style.display = "block";
+    }
+
+    /* Custom CSS injection */
+    if (cfg.customCss) {
+      var customStyle = document.createElement("style");
+      customStyle.textContent = cfg.customCss;
+      document.head.appendChild(customStyle);
+    }
+  }
 
   function applyAvatar(url) {
     var iconEl = root.querySelector(".aw-header-icon");
@@ -233,10 +343,22 @@ function widgetJS(apiOrigin: string): string {
     return "#" + [r, g, b].map(function(v) { return v.toString(16).padStart(2, "0"); }).join("");
   }
 
+  /* Eagerly fetch config on load so colour/branding is applied before first click */
+  fetch(API + "/api/config?widgetId=" + encodeURIComponent(WIDGET_ID))
+    .then(function(r) { return r.json(); })
+    .then(function(cfg) {
+      if (cfg.error) return;
+      cachedCfg = cfg;
+      applyConfig(cfg);
+      launcher.style.opacity = "1";
+    })
+    .catch(function() { launcher.style.opacity = "1"; });
+
   function toggle() {
     isOpen = !isOpen;
     panel.classList.toggle("aw-open", isOpen);
     launcher.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen) proactiveEl.style.display = "none";
     if (isOpen && !opened) {
       opened = true;
       if (cachedCfg) {
@@ -249,14 +371,7 @@ function widgetJS(apiOrigin: string): string {
           .then(function(cfg) {
             if (cfg.error) { addMsg("bot", "Configuration error: " + cfg.error); return; }
             cachedCfg = cfg;
-            if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
-            if (cfg.businessName) bizName.textContent = cfg.businessName;
-            if (cfg.fontFamily) root.style.fontFamily = cfg.fontFamily;
-            if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
-              headerEl.style.background =
-                "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
-            }
-            if (cfg.avatarUrl) applyAvatar(cfg.avatarUrl);
+            applyConfig(cfg);
             addMsg("bot", cfg.greeting || "Hello! How can I help you today?");
             if (cfg.quickReplies && cfg.quickReplies.length) showQR(cfg.quickReplies);
           })
