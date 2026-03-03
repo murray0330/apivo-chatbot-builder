@@ -72,6 +72,7 @@ const clients: Record<string, ClientConfig> = {
     ],
   primaryColor: "#6366f1",
   avatarUrl: "https://www.apivo.ai/apivo-favicon_white.png",
+  fontFamily: "Poppins",
   launcherIcon: "message",
   notificationSound: true,
   historyReset: "24h",
