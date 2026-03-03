@@ -204,6 +204,7 @@ function widgetJS(apiOrigin: string): string {
       cachedCfg = cfg;
       if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
       if (cfg.businessName) bizName.textContent = cfg.businessName;
+      if (cfg.fontFamily) root.style.fontFamily = cfg.fontFamily;
       if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
         headerEl.style.background =
           "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
@@ -250,6 +251,7 @@ function widgetJS(apiOrigin: string): string {
             cachedCfg = cfg;
             if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
             if (cfg.businessName) bizName.textContent = cfg.businessName;
+            if (cfg.fontFamily) root.style.fontFamily = cfg.fontFamily;
             if (cfg.headerStyle === "gradient" && cfg.primaryColor) {
               headerEl.style.background =
                 "linear-gradient(135deg," + cfg.primaryColor + "," + darkenHex(cfg.primaryColor, 45) + ")";
