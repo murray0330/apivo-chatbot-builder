@@ -72,7 +72,6 @@ const clients: Record<string, ClientConfig> = {
     ],
   primaryColor: "#6366f1",
   launcherIcon: "message",
-  headerIcon: "bot",
   historyReset: "24h",
 },
   
