@@ -77,23 +77,21 @@ const clients: Record<string, ClientConfig> = {
   notificationSound: true,
   historyReset: "24h",
 },
-
-  "abc-medspa": {
+"abc-medspa": {
   assistantId: "ed0ad5e2-8916-4330-9604-6d61f7a4111d",
   businessName: "ABC Med Spa",
-      description: "AI Booking Assistant",
   greeting: "Hi! Welcome to ABC Med Spa. To get started, are you a new or returning client?",
   quickReplies: [
       "I'm a new client",
       "I've visted before",
       "I have a question",
     ],
-  primaryColor: "#f43f5e",
+  primaryColor: "#6366f1",
+  description: "AI Booking Assistant",
   fontFamily: "Poppins",
   launcherIcon: "message",
   headerIcon: "spark",
 },
-  
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
   // ─────────────────────────────────────────────────────────────────────────
