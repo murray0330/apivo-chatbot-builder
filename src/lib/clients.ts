@@ -86,7 +86,7 @@ const clients: Record<string, ClientConfig> = {
       "I've visted before",
       "I have a question",
     ],
-  primaryColor: "#F2F0E9",
+  primaryColor: "#7B8C7D",
   fontFamily: "Manrope",
   launcherIcon: "message",
   headerIcon: "spark",
