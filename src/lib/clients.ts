@@ -79,8 +79,8 @@ const clients: Record<string, ClientConfig> = {
 },
 "abc-medspa": {
   assistantId: "ed0ad5e2-8916-4330-9604-6d61f7a4111d",
-  businessName: "The Clinical Sanctuary",
-  greeting: "Hi! Welcome to The Clinical Sanctuary. To get started, are you a new or returning client?",
+  businessName: "ABC Med Spa",
+  greeting: "Hi! Welcome to ABC Med Spa. To get started, are you a new or returning client?",
   quickReplies: [
       "I'm a new client",
       "I've visted before",
