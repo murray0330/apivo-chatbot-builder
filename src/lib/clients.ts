@@ -91,6 +91,13 @@ const clients: Record<string, ClientConfig> = {
   launcherIcon: "message",
   headerIcon: "spark",
 },
+"xyz-medspa": {
+  assistantId: "5d2be46c-6621-442d-b4d2-f7aa7ca01d85",
+  businessName: "",
+  greeting: "Hello! ",
+  quickReplies: [],
+  primaryColor: "#2563eb",
+},
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
   // ─────────────────────────────────────────────────────────────────────────
