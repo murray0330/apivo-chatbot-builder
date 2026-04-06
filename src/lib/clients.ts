@@ -78,7 +78,7 @@ const clients: Record<string, ClientConfig> = {
   historyReset: "24h",
 },
 "abc-medspa": {
-  assistantId: "5d2be46c-6621-442d-b4d2-f7aa7ca01d85",
+  assistantId: "ed0ad5e2-8916-4330-9604-6d61f7a4111d",
   businessName: "ABC Med Spa",
   greeting: "Hi! Welcome to ABC Med Spa. To get started, are you a new or returning client?",
   quickReplies: [
