@@ -8,7 +8,7 @@ interface Message {
   content: string;
 }
 
-function getSuggestedReplies(botText: string): string[] | null {
+function getSuggestedReplies(botText: string, lastUserMsg?: string): string[] | null {
   const t = botText.toLowerCase();
 
   if ((t.includes('book') || t.includes('schedule')) && t.includes('reschedule') && t.includes('cancel')) {
@@ -43,7 +43,8 @@ function getSuggestedReplies(botText: string): string[] | null {
   if (t.includes('does that help') || t.includes('get back to scheduling')) {
     return ["Yes, let's schedule!", 'I have another question'];
   }
-  if (t.includes('anything else') || t.includes('help you with')) {
+  if ((t.includes('anything else') || t.includes('help you with')) &&
+      lastUserMsg !== 'I have a question' && lastUserMsg !== "No, that's all. Thanks!") {
     return ["No, that's all. Thanks!", 'I have a question'];
   }
   return null;
@@ -57,6 +58,7 @@ export default function LiveChatWidget() {
   const [isBusy, setIsBusy] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const chatIdRef = useRef<string | null>(null);
+  const lastUserMsgRef = useRef<string>('');
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const initializedRef = useRef(false);
@@ -96,6 +98,7 @@ export default function LiveChatWidget() {
     async (text?: string) => {
       const msg = (text ?? inputValue).trim();
       if (!msg || isBusy) return;
+      lastUserMsgRef.current = msg;
       setInputValue('');
       setQuickReplies([]);
       setMessages((prev) => [...prev, { role: 'user', content: msg }]);
@@ -123,7 +126,7 @@ export default function LiveChatWidget() {
         } else {
           if (data.chatId) chatIdRef.current = data.chatId;
           setMessages((prev) => [...prev, { role: 'bot', content: data.reply }]);
-          const suggestions = getSuggestedReplies(data.reply);
+          const suggestions = getSuggestedReplies(data.reply, lastUserMsgRef.current);
           if (suggestions) setQuickReplies(suggestions);
         }
       } catch {

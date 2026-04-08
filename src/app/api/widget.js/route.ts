@@ -212,6 +212,7 @@ function widgetJS(apiOrigin: string): string {
   var proactiveEl = root.querySelector("#aw-proactive");
 
   var isOpen = false;
+  var lastUserMsg = "";
 
   /* Icon SVG paths — mirrors BotBuilder ICON_OPTIONS */
   var ICONS = {
@@ -384,6 +385,7 @@ function widgetJS(apiOrigin: string): string {
   function send(text) {
     var msg = (text || input.value || "").trim();
     if (!msg || isBusy) return;
+    lastUserMsg = msg;
     input.value = "";
     clearQR();
     addMsg("user", msg);
@@ -462,7 +464,8 @@ function widgetJS(apiOrigin: string): string {
       return ["Yes, book it!", "Pick a different time"];
     if (t.includes("sure you want to cancel"))
       return ["Yes, cancel it", "No, keep it"];
-    if (t.includes("anything else") || t.includes("help you with"))
+    if ((t.includes("anything else") || t.includes("help you with")) &&
+        lastUserMsg !== "I have a question" && lastUserMsg !== "No, that's all. Thanks!")
       return ["No, that's all. Thanks!", "I have a question"];
     return null;
   }
