@@ -90,7 +90,7 @@ const clients: Record<string, ClientConfig> = {
   fontFamily: "Manrope",
   launcherIcon: "message",
   headerIcon: "spark",
-  proactiveMessage: "👋 Not sure which treatment is right for you? Ask me anything.",
+  proactiveMessage: "👋 Hi! Not sure which treatment is right for you? Ask me anything.",
 },
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
