@@ -75,7 +75,7 @@ const clients: Record<string, ClientConfig> = {
   launcherIcon: "message",
   notificationSound: true,
   historyReset: "24h",
-  proactiveMessage: "Hi! Ready to book a demo or have questions? I'm here to help.",
+  proactiveMessage: "👋 Hi! Ready to book a demo or have questions? I'm here to help.",
 
 },
 "abc-medspa": {
@@ -91,7 +91,7 @@ const clients: Record<string, ClientConfig> = {
   fontFamily: "Manrope",
   launcherIcon: "message",
   headerIcon: "spark",
-  proactiveMessage: "Not sure which treatment is right for you? Ask me anything.",
+  proactiveMessage: "👋 Not sure which treatment is right for you? Ask me anything.",
 
 },
   // ─────────────────────────────────────────────────────────────────────────
