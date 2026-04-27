@@ -76,7 +76,6 @@ const clients: Record<string, ClientConfig> = {
   notificationSound: true,
   historyReset: "24h",
   proactiveMessage: "👋 Hi! Ready to book a demo or have questions? I'm here to help.",
-
 },
 "abc-medspa": {
   assistantId: "5d2be46c-6621-442d-b4d2-f7aa7ca01d85",
@@ -92,7 +91,6 @@ const clients: Record<string, ClientConfig> = {
   launcherIcon: "message",
   headerIcon: "spark",
   proactiveMessage: "👋 Not sure which treatment is right for you? Ask me anything.",
-
 },
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
