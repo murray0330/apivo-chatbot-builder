@@ -64,11 +64,10 @@ const clients: Record<string, ClientConfig> = {
 "apivo": {
   assistantId: "f5381cfd-af11-44d5-9bf3-5d1d87c7b121",
   businessName: "Apivo | AI Agent",
-  greeting: "Hi! Welcome to Apivo. Are you looking to see how our AI receptionist can help automate your bookings 24/7?",
+  greeting: "Hi! Welcome to Apivo. Are you looking to see how we can help automate your bookings 24/7?",
   quickReplies: [
       "Tell me more",
       "Book Demo",
-      "Buy Now",
     ],
   primaryColor: "#6366f1",
   avatarUrl: "https://www.apivo.ai/apivo-favicon_white.png",
@@ -90,6 +89,8 @@ const clients: Record<string, ClientConfig> = {
   fontFamily: "Manrope",
   launcherIcon: "message",
   headerIcon: "spark",
+  proactiveMessage: "Not sure which treatment is right for you? Ask me anything.",
+
 },
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
