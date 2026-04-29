@@ -265,7 +265,17 @@ function widgetJS(apiOrigin: string): string {
   function applyConfig(cfg) {
     if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
     if (cfg.businessName) bizName.textContent = cfg.businessName;
-    if (cfg.fontFamily) root.style.fontFamily = cfg.fontFamily;
+    if (cfg.fontFamily && cfg.fontFamily !== "system") {
+      root.style.fontFamily = '"' + cfg.fontFamily + '", system-ui, -apple-system, sans-serif';
+      var gfId = "aw-gf-" + cfg.fontFamily.replace(/\s+/g, "-").toLowerCase();
+      if (!document.getElementById(gfId)) {
+        var gfLink = document.createElement("link");
+        gfLink.id = gfId;
+        gfLink.rel = "stylesheet";
+        gfLink.href = "https://fonts.googleapis.com/css2?family=" + encodeURIComponent(cfg.fontFamily).replace(/%20/g, "+") + ":wght@400;500;600;700&display=swap";
+        document.head.appendChild(gfLink);
+      }
+    }
     if (cfg.messagePlaceholder) input.placeholder = cfg.messagePlaceholder;
 
     /* Header style */

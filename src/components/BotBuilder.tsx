@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -10,7 +10,7 @@ type CornerRadius = "sharp" | "round";
 type ChatInterface = "floating-widget" | "embedded-iframe";
 type ChatLauncher = "bubble" | "text-bar";
 type HistoryReset = "never" | "on-close" | "24h";
-type FontFamily = "system" | "Inter" | "Poppins" | "Roboto";
+type FontFamily = string;
 type HeaderStyle = "solid" | "gradient" | "minimal";
 type GlassEffect = false | true;
 type IconKey = "" | "chat" | "message" | "headset" | "bot" | "spark" | "zap" | "heart" | "star" | "globe" | "shield" | "smile" | "user";
@@ -84,6 +84,132 @@ const DEFAULT_CONFIG: BotConfig = {
 };
 
 type Setter = <K extends keyof BotConfig>(k: K, v: BotConfig[K]) => void;
+
+// ─── Google Fonts ──────────────────────────────────────────────────────────────
+
+const GOOGLE_FONTS: string[] = [
+  "Abel","Abril Fatface","Albert Sans","Alegreya","Alegreya Sans","Alfa Slab One","Almarai","Amatic SC",
+  "Anonymous Pro","Antic Slab","Arimo","Arvo","Asap","Assistant","Bangers","Barlow","Barlow Condensed",
+  "Barlow Semi Condensed","Be Vietnam Pro","Bebas Neue","Bitter","Black Han Sans","Boogaloo","Bowlby One SC",
+  "Cabin","Cardo","Catamaran","Caveat","Chakra Petch","Chivo","Climate Crisis","Comfortaa","Courgette",
+  "Courier Prime","Crimson Text","Dancing Script","DM Mono","DM Sans","DM Serif Display","DM Serif Text",
+  "Domine","Dosis","EB Garamond","Encode Sans","Epilogue","Exo 2","Figtree","Fira Code","Fira Sans",
+  "Fira Sans Condensed","Fraunces","Fredoka","Fredoka One","Gelasio","Gentium Book Plus",
+  "Gloria Hallelujah","Gothic A1","Graduate","Grand Hotel","Great Vibes","Handlee","Heebo","Hind",
+  "IBM Plex Mono","IBM Plex Sans","IBM Plex Serif","Inconsolata","Indie Flower","Inter","Josefin Sans",
+  "Josefin Slab","JetBrains Mono","Jost","Kalam","Kanit","Karla","Khand","Lato","Lexend",
+  "Libre Baskerville","Libre Caslon Text","Libre Franklin","Lilita One","Lobster","Lobster Two","Lora",
+  "Lusitana","M PLUS 1p","M PLUS Rounded 1c","Manrope","Maven Pro","Merriweather","Merriweather Sans",
+  "Montserrat","Montserrat Alternates","Moul","Mulish","Nanum Gothic","Nunito","Nunito Sans","Open Sans",
+  "Oswald","Outfit","Overpass","Overpass Mono","Oxygen","Oxygen Mono","PT Mono","PT Sans",
+  "PT Sans Caption","PT Sans Narrow","PT Serif","Pacifico","Patrick Hand","Permanent Marker",
+  "Play","Playfair Display","Playfair Display SC","Plus Jakarta Sans","Poppins","Prompt","Questrial",
+  "Quicksand","Raleway","Raleway Dots","Red Hat Display","Red Hat Mono","Red Hat Text","Righteous",
+  "Roboto","Roboto Condensed","Roboto Flex","Roboto Mono","Roboto Slab","Rubik","Rubik Dirt","Russo One",
+  "Sacramento","Satisfy","Schibsted Grotesk","Secular One","Shadows Into Light","Share Tech Mono",
+  "Signika","Signika Negative","Slabo 27px","Sora","Source Code Pro","Source Sans 3","Source Serif 4",
+  "Space Grotesk","Space Mono","Spectral","Tangerine","Teko","Tilt Neon","Titillium Web","Tinos",
+  "Ubuntu","Ubuntu Condensed","Ubuntu Mono","Ultra","Unbounded","Urbanist","Varela Round",
+  "Vollkorn","Vollkorn SC","Work Sans","Wix Madefor Display","Wix Madefor Text","Yanone Kaffeesatz",
+  "Yellowtail","Yeseva One","Zilla Slab",
+];
+
+function loadGoogleFont(family: string) {
+  if (!family || family === "system") return;
+  const id = `gf-${family.replace(/\s+/g, "-").toLowerCase()}`;
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, "+")}:wght@400;500;600;700&display=swap`;
+  document.head.appendChild(link);
+}
+
+function FontPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (value && value !== "system") loadGoogleFont(value);
+  }, [value]);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 10);
+  }, [open]);
+
+  const filtered = search.trim()
+    ? GOOGLE_FONTS.filter((f) => f.toLowerCase().includes(search.toLowerCase()))
+    : GOOGLE_FONTS;
+
+  const displayLabel = !value || value === "system" ? "System Default" : value;
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        style={{ fontFamily: value && value !== "system" ? `"${value}", system-ui, sans-serif` : undefined }}
+        className="h-10 w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3.5 text-left text-[13px] text-gray-900 outline-none transition-all hover:border-gray-300 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 flex items-center justify-between gap-2"
+      >
+        <span className="truncate">{displayLabel}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 shrink-0 text-gray-400">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+          <div className="p-2 border-b border-gray-100">
+            <input
+              ref={searchRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search fonts…"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-[13px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+            />
+          </div>
+          <div className="max-h-52 overflow-y-auto">
+            <button
+              type="button"
+              className={`w-full px-3.5 py-2 text-left text-[13px] hover:bg-blue-50 hover:text-blue-600 transition-colors ${(!value || value === "system") ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"}`}
+              onClick={() => { onChange("system"); setOpen(false); setSearch(""); }}
+            >
+              System Default
+            </button>
+            {filtered.length === 0 && (
+              <p className="px-3.5 py-3 text-[12px] text-gray-400 text-center">No fonts found</p>
+            )}
+            {filtered.map((font) => (
+              <button
+                key={font}
+                type="button"
+                className={`w-full px-3.5 py-2 text-left text-[13px] hover:bg-blue-50 hover:text-blue-600 transition-colors ${value === font ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"}`}
+                onMouseEnter={() => loadGoogleFont(font)}
+                onClick={() => { loadGoogleFont(font); onChange(font); setOpen(false); setSearch(""); }}
+              >
+                {font}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Primitives ────────────────────────────────────────────────────────────────
 
@@ -652,12 +778,7 @@ function TabAppearance({ config: c, set }: { config: BotConfig; set: Setter }) {
         </Field>
         <Field>
           <Label>Font Family</Label>
-          <Select value={c.fontFamily} onChange={(e) => set("fontFamily", e.target.value as FontFamily)}>
-            <option value="system">System Default</option>
-            <option value="Inter">Inter</option>
-            <option value="Poppins">Poppins</option>
-            <option value="Roboto">Roboto</option>
-          </Select>
+          <FontPicker value={c.fontFamily} onChange={(v) => set("fontFamily", v)} />
         </Field>
       </Section>
       <Section title="Layout">
