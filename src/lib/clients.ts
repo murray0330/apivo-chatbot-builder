@@ -92,6 +92,24 @@ const clients: Record<string, ClientConfig> = {
   headerIcon: "spark",
   proactiveMessage: "👋 Hi! Not sure which treatment is right for you? Ask me anything.",
 },
+  "contourology-la": {
+  assistantId: "36ecc4d5-ef99-4f10-b271-89373bce8b78",
+  businessName: "Contourology",
+  greeting: "Hi! Welcome to Contourology. To get started, are you a new or returning client?",
+  quickReplies: [
+      "I'm a new client",
+      "I've visted before",
+      "I have a question",
+    ],
+  primaryColor: "#857B73",
+  description: "Booking Assistant",
+  fontFamily: "Poppins",
+  launcherIcon: "message",
+  headerIcon: "spark",
+  proactiveMessage: "👋 Hi! Not sure which treatment is right for you? Ask me anything.",
+  notificationSound: true,
+  historyReset: "24h",
+},
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
   // ─────────────────────────────────────────────────────────────────────────
