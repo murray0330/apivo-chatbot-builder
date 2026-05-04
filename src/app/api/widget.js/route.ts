@@ -207,6 +207,7 @@ function widgetJS(apiOrigin: string): string {
   var input       = root.querySelector("#aw-input");
   var sendBtn     = root.querySelector("#aw-send");
   var bizName     = root.querySelector("#aw-biz-name");
+  var onlineEl    = root.querySelector(".aw-online");
   var headerEl    = root.querySelector(".aw-header");
   var footerBar   = root.querySelector("#aw-footer-bar");
   var proactiveEl = root.querySelector("#aw-proactive");
@@ -265,6 +266,11 @@ function widgetJS(apiOrigin: string): string {
   function applyConfig(cfg) {
     if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
     if (cfg.businessName) bizName.textContent = cfg.businessName;
+    if (cfg.description && onlineEl) {
+      var dot = onlineEl.querySelector(".aw-dot");
+      onlineEl.textContent = cfg.description;
+      if (dot) onlineEl.insertBefore(dot, onlineEl.firstChild);
+    }
     if (cfg.fontFamily && cfg.fontFamily !== "system") {
       root.style.fontFamily = '"' + cfg.fontFamily + '", system-ui, -apple-system, sans-serif';
       var gfId = "aw-gf-" + cfg.fontFamily.replace(/\s+/g, "-").toLowerCase();
