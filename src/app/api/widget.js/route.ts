@@ -267,9 +267,7 @@ function widgetJS(apiOrigin: string): string {
     if (cfg.primaryColor) root.style.setProperty("--aw-primary", cfg.primaryColor);
     if (cfg.businessName) bizName.textContent = cfg.businessName;
     if (cfg.description && onlineEl) {
-      var dot = onlineEl.querySelector(".aw-dot");
       onlineEl.textContent = cfg.description;
-      if (dot) onlineEl.insertBefore(dot, onlineEl.firstChild);
     }
     if (cfg.fontFamily && cfg.fontFamily !== "system") {
       root.style.fontFamily = '"' + cfg.fontFamily + '", system-ui, -apple-system, sans-serif';
