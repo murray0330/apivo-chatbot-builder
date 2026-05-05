@@ -20,6 +20,7 @@ export interface ClientConfig {
   headerStyle?: string;
   cornerRadius?: "sharp" | "round";
   customCss?: string;
+  customJs?: string;
 
   // ── Icons ─────────────────────────────────────────────────────────────────
   launcherIcon?: string;
@@ -109,6 +110,23 @@ const clients: Record<string, ClientConfig> = {
   proactiveMessage: "👋 Hi! Not sure which treatment is right for you? Ask me anything.",
   notificationSound: true,
   historyReset: "24h",
+  customCss: [
+    "@media(max-width:768px){",
+      "#aw-launcher{display:none!important}",
+      "#aw-proactive{display:none!important}",
+      "#aw-panel{bottom:70px!important;border-radius:16px 16px 0 0!important;right:0!important;left:0!important;width:100%!important;}",
+    "}",
+  ].join(""),
+  customJs: [
+    "window.awOpenChat=function(){var l=document.getElementById('aw-launcher');if(l)l.click();};",
+    "document.addEventListener('click',function(e){",
+      "var el=e.target.closest('a');",
+      "if(el&&el.getAttribute('aria-label')==='AI Chat'){",
+        "e.preventDefault();e.stopPropagation();",
+        "if(window.awOpenChat)window.awOpenChat();",
+      "}",
+    "},true);",
+  ].join(""),
 },
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)

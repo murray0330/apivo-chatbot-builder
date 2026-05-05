@@ -353,6 +353,13 @@ function widgetJS(apiOrigin: string): string {
       customStyle.textContent = cfg.customCss;
       document.head.appendChild(customStyle);
     }
+
+    /* Custom JS injection */
+    if (cfg.customJs) {
+      var customScript = document.createElement("script");
+      customScript.textContent = cfg.customJs;
+      document.head.appendChild(customScript);
+    }
   }
 
   function applyAvatar(url) {
