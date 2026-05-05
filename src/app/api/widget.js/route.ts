@@ -246,13 +246,7 @@ function widgetJS(apiOrigin: string): string {
     if (e.key === "Escape" && isOpen) toggle();
   });
 
-/* Contourology-specific mobile nav integration */
-if (WIDGET_ID === "contourology-la") {
-  var mobileStyle = document.createElement("style");
-  mobileStyle.textContent = "@media(max-width:639px){#aw-launcher{display:none!important}#aw-proactive{display:none!important}#aw-panel{bottom:70px!important;border-radius:16px 16px 0 0!important;right:0!important;left:0!important;}}";
-  document.head.appendChild(mobileStyle);
-  window.awOpenChat = toggle;
-}
+
 
   /* Prevent iOS Safari auto-zoom on input focus */
   input.addEventListener("focus", function() {
