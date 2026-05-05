@@ -249,10 +249,9 @@ function widgetJS(apiOrigin: string): string {
 /* Contourology-specific mobile nav integration */
   if (WIDGET_ID === "contourology-la") {
     var mobileStyle = document.createElement("style");
-    mobileStyle.textContent = "@media(max-width:639px){#aw-launcher{display:none!important}#aw-proactive{display:none!important}#aw-panel{bottom:70px!important;border-radius:16px 16px 0 0!important;right:0!important;left:0!important;}}";
+    mobileStyle.textContent = "@media(max-width:768px){#aw-launcher{display:none!important}#aw-proactive{display:none!important}#aw-panel{bottom:70px!important;border-radius:16px 16px 0 0!important;right:0!important;left:0!important;width:100%!important;}}@media(min-width:769px){#aw-panel{bottom:104px!important;right:28px!important;left:auto!important;width:380px!important;border-radius:16px!important;}}";
     document.head.appendChild(mobileStyle);
     window.awOpenChat = toggle;
-
     document.addEventListener('click', function(e) {
       var el = e.target.closest('a');
       if (el && el.getAttribute('aria-label') === 'AI Chat') {
