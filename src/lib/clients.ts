@@ -120,8 +120,11 @@ const clients: Record<string, ClientConfig> = {
   customJs: [
     "window.awOpenChat=function(){var l=document.getElementById('aw-launcher');if(l)l.click();};",
     "document.addEventListener('click',function(e){",
-      "var el=e.target.closest('a');",
-      "if(el&&el.getAttribute('aria-label')==='AI Chat'){",
+      "var el=e.target.closest('a,button,[role=button]');",
+      "if(!el)return;",
+      "var label=(el.getAttribute('aria-label')||'').trim();",
+      "var text=(el.textContent||'').trim();",
+      "if(label==='AI Chat'||text==='AI Chat'){",
         "e.preventDefault();e.stopPropagation();",
         "if(window.awOpenChat)window.awOpenChat();",
       "}",
