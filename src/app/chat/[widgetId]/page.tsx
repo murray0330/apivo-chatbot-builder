@@ -195,16 +195,6 @@ export default function ChatPage() {
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", background: headerBg, flexShrink: 0 }}>
-        {/* Back button */}
-        <button
-          onClick={goBack}
-          style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.2)", color: headerText, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background .15s" }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={18} height={18}>
-            <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
-          </svg>
-        </button>
-
         <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
           {cfg.avatarUrl
             ? <img src={cfg.avatarUrl} alt="" style={{ width: 36, height: 36, objectFit: "cover" }} />
@@ -224,6 +214,16 @@ export default function ChatPage() {
               </span>
           }
         </div>
+
+        {/* Close / back button */}
+        <button
+          onClick={goBack}
+          style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.2)", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background .15s" }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={18} height={18}>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       {/* Messages */}
