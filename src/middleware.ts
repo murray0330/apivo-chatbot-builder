@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SUBDOMAIN_MAP: Record<string, string> = {
-  "contourology": "contourology-la",
+  "contourologyla": "contourology-la",
 };
 
 export function middleware(req: NextRequest) {
