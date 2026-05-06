@@ -16,12 +16,17 @@ interface Config {
   footer?: string;
   themeMode?: string;
   headerStyle?: string;
-  glassEffect?: boolean;
 }
 
 interface Message {
   role: "bot" | "user";
   text: string;
+}
+
+interface SessionData {
+  messages: Message[];
+  chatId: string | null;
+  quickReplies: string[];
 }
 
 const ICONS: Record<string, string> = {
@@ -39,9 +44,7 @@ function IconSvg({ icon, size = 20, color = "currentColor" }: { icon: string; si
   if (!d) return null;
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}>
-      {d.split(" M").map((part, i) => (
-        <path key={i} d={i === 0 ? part : "M" + part} />
-      ))}
+      {d.split(" M").map((part, i) => <path key={i} d={i === 0 ? part : "M" + part} />)}
     </svg>
   );
 }
@@ -69,6 +72,7 @@ function getSuggestions(text: string, lastUserMsg: string): string[] | null {
 export default function ChatPage() {
   const params = useParams();
   const widgetId = params.widgetId as string;
+  const sessionKey = `aw-chat-${widgetId}`;
 
   const [cfg, setCfg] = useState<Config | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -80,11 +84,7 @@ export default function ChatPage() {
   const lastUserMsgRef = useRef("");
   const msgsRef = useRef<HTMLDivElement>(null);
 
-  const primary = cfg?.primaryColor || "#6366f1";
-  const font = cfg?.fontFamily && cfg.fontFamily !== "system"
-    ? `"${cfg.fontFamily}", system-ui, sans-serif`
-    : "system-ui, sans-serif";
-
+  /* Restore or init session */
   useEffect(() => {
     fetch(`/api/config?widgetId=${widgetId}`)
       .then(r => r.json())
@@ -99,9 +99,21 @@ export default function ChatPage() {
             document.head.appendChild(link);
           }
         }
+        try {
+          const saved = sessionStorage.getItem(sessionKey);
+          if (saved) {
+            const parsed: SessionData = JSON.parse(saved);
+            setMessages(parsed.messages);
+            setQuickReplies(parsed.quickReplies);
+            chatIdRef.current = parsed.chatId;
+            return;
+          }
+        } catch { /* ignore */ }
         const greeting = data.greeting || "Hello! How can I help you today?";
-        setMessages([{ role: "bot", text: greeting }]);
+        const initial: Message[] = [{ role: "bot", text: greeting }];
+        setMessages(initial);
         if (data.quickReplies?.length) setQuickReplies(data.quickReplies);
+        saveSession(initial, null, data.quickReplies || []);
       })
       .catch(() => setMessages([{ role: "bot", text: "Hello! How can I help you today?" }]));
   }, [widgetId]);
@@ -110,13 +122,20 @@ export default function ChatPage() {
     if (msgsRef.current) msgsRef.current.scrollTop = msgsRef.current.scrollHeight;
   }, [messages, typing]);
 
+  function saveSession(msgs: Message[], chatId: string | null, qr: string[]) {
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({ messages: msgs, chatId, quickReplies: qr }));
+    } catch { /* ignore */ }
+  }
+
   async function send(text?: string) {
     const msg = (text ?? input).trim();
     if (!msg || busy) return;
     lastUserMsgRef.current = msg;
     setInput("");
     setQuickReplies([]);
-    setMessages(prev => [...prev, { role: "user", text: msg }]);
+    const newMsgs: Message[] = [...messages, { role: "user", text: msg }];
+    setMessages(newMsgs);
     setBusy(true);
     setTyping(true);
     try {
@@ -129,45 +148,77 @@ export default function ChatPage() {
       setTyping(false);
       if (data.chatId) chatIdRef.current = data.chatId;
       const reply = data.reply || "Sorry, I didn't get a response.";
-      setMessages(prev => [...prev, { role: "bot", text: reply }]);
-      const suggestions = getSuggestions(reply, lastUserMsgRef.current);
-      if (suggestions) setQuickReplies(suggestions);
+      const updatedMsgs: Message[] = [...newMsgs, { role: "bot", text: reply }];
+      const suggestions = getSuggestions(reply, lastUserMsgRef.current) || [];
+      setMessages(updatedMsgs);
+      setQuickReplies(suggestions);
+      saveSession(updatedMsgs, chatIdRef.current, suggestions);
     } catch {
       setTyping(false);
-      setMessages(prev => [...prev, { role: "bot", text: "I'm having trouble connecting. Please try again." }]);
+      const errMsgs: Message[] = [...newMsgs, { role: "bot", text: "I'm having trouble connecting. Please try again." }];
+      setMessages(errMsgs);
+      saveSession(errMsgs, chatIdRef.current, []);
     }
     setBusy(false);
   }
 
-  const headerBg = cfg?.headerStyle === "gradient" && primary
+  function goBack() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.close();
+    }
+  }
+
+  const primary = cfg?.primaryColor || "#6366f1";
+  const font = cfg?.fontFamily && cfg.fontFamily !== "system"
+    ? `"${cfg.fontFamily}", system-ui, sans-serif`
+    : "system-ui, sans-serif";
+  const isDark = cfg?.themeMode === "dark";
+  const isMinimal = cfg?.headerStyle === "minimal";
+  const headerBg = cfg?.headerStyle === "gradient"
     ? `linear-gradient(135deg, ${primary}, ${primary}cc)`
-    : cfg?.headerStyle === "minimal" ? "#fff" : primary;
-  const headerText = cfg?.headerStyle === "minimal" ? "#111" : "#fff";
+    : isMinimal ? "#fff" : primary;
+  const headerText = isMinimal ? "#111" : "#fff";
 
   if (!cfg) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100dvh", background: "#fafafa" }}>
-        <div style={{ width: 32, height: 32, border: "3px solid #e4e4e7", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+        <div style={{ width: 32, height: 32, border: "3px solid #e4e4e7", borderTopColor: primary, borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", fontFamily: font, background: "#fafafa", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", fontFamily: font, background: isDark ? "#09090b" : "#fafafa", overflow: "hidden" }}>
+
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", background: headerBg, flexShrink: 0 }}>
+        {/* Back button */}
+        <button
+          onClick={goBack}
+          style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.2)", color: headerText, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background .15s" }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={18} height={18}>
+            <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+
         <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
           {cfg.avatarUrl
             ? <img src={cfg.avatarUrl} alt="" style={{ width: 36, height: 36, objectFit: "cover" }} />
             : <IconSvg icon={cfg.headerIcon || "chat"} size={20} color={headerText} />
           }
         </div>
+
         <div style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: "0.93rem", fontWeight: 600, color: headerText, lineHeight: 1.3 }}>{cfg.businessName || "Chat"}</span>
+          <span style={{ display: "block", fontSize: "0.93rem", fontWeight: 600, color: headerText, lineHeight: 1.3 }}>
+            {cfg.businessName || "Chat"}
+          </span>
           {cfg.description
-            ? <span style={{ fontSize: "0.73rem", color: cfg.headerStyle === "minimal" ? "rgba(0,0,0,.5)" : "rgba(255,255,255,.85)" }}>{cfg.description}</span>
-            : <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.73rem", color: cfg.headerStyle === "minimal" ? "rgba(0,0,0,.5)" : "rgba(255,255,255,.85)" }}>
+            ? <span style={{ fontSize: "0.73rem", color: isMinimal ? "rgba(0,0,0,.5)" : "rgba(255,255,255,.85)" }}>{cfg.description}</span>
+            : <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.73rem", color: isMinimal ? "rgba(0,0,0,.5)" : "rgba(255,255,255,.85)" }}>
                 <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 6px rgba(52,211,153,.5)", display: "inline-block" }} />
                 Online
               </span>
@@ -176,17 +227,17 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      <div ref={msgsRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 10, background: cfg.themeMode === "dark" ? "#09090b" : "#fafafa" }}>
+      <div ref={msgsRef} style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 10, background: isDark ? "#09090b" : "#fafafa" }}>
         {messages.map((m, i) => (
           <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start", animation: "msgIn .35s ease-out" }}>
             <div style={{
               maxWidth: "82%", padding: "12px 16px", borderRadius: 16, fontSize: "0.88rem", lineHeight: 1.55, wordBreak: "break-word",
-              background: m.role === "user" ? primary : cfg.themeMode === "dark" ? "#27272a" : "#fff",
-              color: m.role === "user" ? "#fff" : cfg.themeMode === "dark" ? "#f4f4f5" : "#27272a",
+              background: m.role === "user" ? primary : isDark ? "#27272a" : "#fff",
+              color: m.role === "user" ? "#fff" : isDark ? "#f4f4f5" : "#27272a",
               borderBottomRightRadius: m.role === "user" ? 4 : 16,
               borderBottomLeftRadius: m.role === "bot" ? 4 : 16,
               boxShadow: m.role === "bot" ? "0 1px 4px rgba(0,0,0,.06)" : "none",
-              border: m.role === "bot" ? "1px solid rgba(0,0,0,.06)" : "none",
+              border: m.role === "bot" ? `1px solid ${isDark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)"}` : "none",
             }}>
               {m.text}
             </div>
@@ -194,7 +245,7 @@ export default function ChatPage() {
         ))}
         {typing && (
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
-            <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,.06)", borderRadius: 16, borderBottomLeftRadius: 4, padding: "12px 16px", display: "flex", gap: 6, alignItems: "center" }}>
+            <div style={{ background: isDark ? "#27272a" : "#fff", border: `1px solid ${isDark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)"}`, borderRadius: 16, borderBottomLeftRadius: 4, padding: "12px 16px", display: "flex", gap: 6, alignItems: "center" }}>
               {[0, 150, 300].map(d => (
                 <span key={d} style={{ width: 7, height: 7, borderRadius: "50%", background: "#d4d4d8", display: "inline-block", animation: `bounce .6s ${d}ms infinite alternate` }} />
               ))}
@@ -205,9 +256,9 @@ export default function ChatPage() {
 
       {/* Quick replies */}
       {quickReplies.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "0 16px 8px", background: cfg.themeMode === "dark" ? "#09090b" : "#fafafa" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "0 16px 8px", background: isDark ? "#09090b" : "#fafafa" }}>
           {quickReplies.map(qr => (
-            <button key={qr} onClick={() => send(qr)} style={{ padding: "8px 16px", borderRadius: 9999, border: "1px solid rgba(0,0,0,.08)", background: "#fff", fontSize: "0.84rem", fontWeight: 500, color: "#3f3f46", cursor: "pointer", fontFamily: "inherit" }}>
+            <button key={qr} onClick={() => send(qr)} style={{ padding: "8px 16px", borderRadius: 9999, border: `1px solid ${isDark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.08)"}`, background: isDark ? "#27272a" : "#fff", fontSize: "0.84rem", fontWeight: 500, color: isDark ? "#d4d4d8" : "#3f3f46", cursor: "pointer", fontFamily: "inherit" }}>
               {qr}
             </button>
           ))}
@@ -215,19 +266,19 @@ export default function ChatPage() {
       )}
 
       {/* Input */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderTop: "1px solid rgba(0,0,0,.08)", background: cfg.themeMode === "dark" ? "#18181b" : "#fff", flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderTop: `1px solid ${isDark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.08)"}`, background: isDark ? "#18181b" : "#fff", flexShrink: 0 }}>
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
           placeholder={cfg.messagePlaceholder || "Type a message..."}
           maxLength={500}
-          style={{ flex: 1, padding: "10px 16px", borderRadius: 9999, border: "1px solid rgba(0,0,0,.08)", background: "#fafafa", fontSize: 16, color: "#18181b", outline: "none", fontFamily: "inherit" }}
+          style={{ flex: 1, padding: "10px 16px", borderRadius: 9999, border: `1px solid ${isDark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.08)"}`, background: isDark ? "#27272a" : "#fafafa", fontSize: 16, color: isDark ? "#f4f4f5" : "#18181b", outline: "none", fontFamily: "inherit" }}
         />
         <button
           onClick={() => send()}
           disabled={busy || !input.trim()}
-          style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: primary, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: busy || !input.trim() ? 0.45 : 1 }}
+          style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: primary, color: "#fff", cursor: busy || !input.trim() ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: busy || !input.trim() ? 0.45 : 1, transition: "opacity .15s" }}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={18} height={18}>
             <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -236,16 +287,17 @@ export default function ChatPage() {
       </div>
 
       {cfg.footer && (
-        <div style={{ padding: "6px 16px", textAlign: "center", fontSize: "0.72rem", color: "#a1a1aa", background: "#fff", borderTop: "1px solid rgba(0,0,0,.06)", flexShrink: 0 }}>
+        <div style={{ padding: "6px 16px", textAlign: "center", fontSize: "0.72rem", color: isDark ? "#71717a" : "#a1a1aa", background: isDark ? "#18181b" : "#fff", borderTop: `1px solid ${isDark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.06)"}`, flexShrink: 0 }}>
           {cfg.footer}
         </div>
       )}
 
       <style>{`
-        @keyframes msgIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes bounce { to { transform:translateY(-4px); opacity:.5 } }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { overflow: hidden; }
+        @keyframes msgIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes bounce { to { transform:translateY(-4px); opacity:.5 } }
+        @keyframes spin { to { transform:rotate(360deg) } }
       `}</style>
     </div>
   );
