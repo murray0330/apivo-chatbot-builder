@@ -122,6 +122,11 @@ const clients: Record<string, ClientConfig> = {
   customJs: [
     "var awBackdrop=document.createElement('div');awBackdrop.id='aw-backdrop';document.body.appendChild(awBackdrop);",
     "awBackdrop.addEventListener('click',function(){var l=document.getElementById('aw-launcher');if(l)l.click();awBackdrop.classList.remove('aw-show');});",
+    "window.awOpenChat=function(){",
+      "var l=document.getElementById('aw-launcher');",
+      "if(!l)return;",
+      "if(l.getAttribute('aria-expanded')==='false'){l.click();awBackdrop.classList.add('aw-show');}",
+    "};",
     "function awOpenFromHash(){",
       "if(location.hash!=='#aw-open')return;",
       "history.replaceState(null,'',location.pathname+location.search);",
