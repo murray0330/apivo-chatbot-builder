@@ -144,16 +144,6 @@ const clients: Record<string, ClientConfig> = {
       "if(location.hash==='#aw-open')awOpenFromHash();",
     "});",
   ].join(""),
-      "if(parseFloat(l.style.opacity)>0){",
-        "if(l.getAttribute('aria-expanded')==='false')l.click();",
-        "history.replaceState(null,'',location.pathname+location.search);",
-      "}else{setTimeout(awOpenFromHash,100);}",
-    "}",
-    "awOpenFromHash();",
-    "window.addEventListener('hashchange',function(){",
-      "if(location.hash==='#aw-open')awOpenFromHash();",
-    "});",
-  ].join(""),
 },
   // ─────────────────────────────────────────────────────────────────────────
   // ADD NEW BOT ENTRIES ABOVE THIS LINE (inside the object, before the `};`)
