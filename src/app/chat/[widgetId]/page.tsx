@@ -119,6 +119,10 @@ export default function ChatPage() {
   }, [widgetId]);
 
   useEffect(() => {
+    if (cfg?.businessName) document.title = cfg.businessName;
+  }, [cfg?.businessName]);
+
+  useEffect(() => {
     if (msgsRef.current) msgsRef.current.scrollTop = msgsRef.current.scrollHeight;
   }, [messages, typing]);
 
