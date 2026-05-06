@@ -106,7 +106,7 @@ const clients: Record<string, ClientConfig> = {
   description: "Booking Assistant",
   fontFamily: "Poppins",
   launcherIcon: "message",
-  headerIcon: "spark",
+  avatarUrl: "https://www.contourologyla.com/favicon.ico",
   proactiveMessage: "👋 Hi! Not sure which treatment is right for you? Ask me anything.",
   notificationSound: true,
   historyReset: "24h",
