@@ -84,7 +84,7 @@ const clients: Record<string, ClientConfig> = {
   greeting: "Hi! Welcome to ABC Med Spa. To get started, are you a new or returning client?",
   quickReplies: [
       "I'm a new client",
-      "I've visted before",
+      "I've visited before",
       "I have a question",
     ],
   primaryColor: "#7B8C7D",
@@ -99,7 +99,7 @@ const clients: Record<string, ClientConfig> = {
   greeting: "Hi! Welcome to Contourology. To get started, are you a new or returning client?",
   quickReplies: [
       "I'm a new client",
-      "I've visted before",
+      "I've visited before",
       "I have a question",
     ],
   primaryColor: "#857B73",
