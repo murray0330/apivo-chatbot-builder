@@ -49,25 +49,6 @@ function IconSvg({ icon, size = 20, color = "currentColor" }: { icon: string; si
   );
 }
 
-function getSuggestions(text: string, lastUserMsg: string): string[] | null {
-  const t = text.toLowerCase();
-  if ((t.includes("book") || t.includes("schedule")) && t.includes("reschedule") && t.includes("cancel"))
-    return ["Book Appointment", "Reschedule", "Cancel"];
-  if (t.includes("treatment") && (t.includes("interested") || t.includes("looking for")))
-    return ["Cleaning", "Consultation", "Other"];
-  if (t.includes("last") && (t.includes("cleaning") || t.includes("dental")))
-    return ["Less than 6 months", "6-12 months ago", "Over a year ago", "Not sure"];
-  if (t.includes("shall i book") || t.includes("want me to book") || t.includes("shall i go ahead"))
-    return ["Yes, book it!", "Pick a different time"];
-  if (t.includes("available") && (t.includes("book") || t.includes("shall")))
-    return ["Yes, book it!", "Pick a different time"];
-  if (t.includes("sure you want to cancel"))
-    return ["Yes, cancel it", "No, keep it"];
-  if ((t.includes("anything else") || t.includes("help you with")) &&
-      lastUserMsg !== "I have a question" && lastUserMsg !== "No, that's all. Thanks!")
-    return ["No, that's all. Thanks!", "I have a question"];
-  return null;
-}
 
 export default function ChatPage() {
   const params = useParams();
@@ -81,7 +62,6 @@ export default function ChatPage() {
   const [busy, setBusy] = useState(false);
   const [typing, setTyping] = useState(false);
   const chatIdRef = useRef<string | null>(null);
-  const lastUserMsgRef = useRef("");
   const msgsRef = useRef<HTMLDivElement>(null);
 
   /* Restore or init session */
@@ -135,7 +115,6 @@ export default function ChatPage() {
   async function send(text?: string) {
     const msg = (text ?? input).trim();
     if (!msg || busy) return;
-    lastUserMsgRef.current = msg;
     setInput("");
     setQuickReplies([]);
     const newMsgs: Message[] = [...messages, { role: "user", text: msg }];
@@ -153,10 +132,9 @@ export default function ChatPage() {
       if (data.chatId) chatIdRef.current = data.chatId;
       const reply = data.reply || "Sorry, I didn't get a response.";
       const updatedMsgs: Message[] = [...newMsgs, { role: "bot", text: reply }];
-      const suggestions = getSuggestions(reply, lastUserMsgRef.current) || [];
       setMessages(updatedMsgs);
-      setQuickReplies(suggestions);
-      saveSession(updatedMsgs, chatIdRef.current, suggestions);
+      setQuickReplies([]);
+      saveSession(updatedMsgs, chatIdRef.current, []);
     } catch {
       setTyping(false);
       const errMsgs: Message[] = [...newMsgs, { role: "bot", text: "I'm having trouble connecting. Please try again." }];
