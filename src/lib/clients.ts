@@ -100,8 +100,8 @@ const clients: Record<string, ClientConfig> = {
   quickReplies: [
       "I'm a new client",
       "I've visited before",
-      "I have an appointment question",
-      "I'm interested in taking a course",
+      "I have a question",
+      "I'm interested in courses",
     ],
   primaryColor: "#857B73",
   description: "Booking Assistant",
