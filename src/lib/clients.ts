@@ -85,7 +85,8 @@ const clients: Record<string, ClientConfig> = {
   quickReplies: [
       "I'm a new client",
       "I've visited before",
-      "I have a question",
+      "I have an appointment question",
+      "I'm interested in taking a course",
     ],
   primaryColor: "#7B8C7D",
   fontFamily: "Manrope",
